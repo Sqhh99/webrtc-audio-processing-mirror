@@ -25,13 +25,13 @@ jobs:
             g++
 
       - name: Setup
-        run: meson setup --force-fallback-for=abseil-cpp --prefix=${{ github.workspace }}/install builddir
+        run: meson setup --force-fallback-for=abseil-cpp --prefix=/usr --libdir=lib builddir
 
       - name: Build
         run: meson compile -C builddir
 
       - name: Install
-        run: meson install -C builddir
+        run: DESTDIR=${{ github.workspace }}/install meson install -C builddir
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -67,7 +67,7 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Setup
-        run: meson setup --prefix=${{ github.workspace }}/install builddir -Dcpp_std=c++20
+        run: meson setup --prefix=C:/install --libdir=lib builddir -Dcpp_std=c++20
 
       - name: Build
         run: meson compile -C builddir
@@ -79,7 +79,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: webrtc-audio-processing-windows-x64
-          path: install/
+          path: C:/install/
           retention-days: 30
 
       - name: Upload logs
@@ -101,13 +101,13 @@ jobs:
           brew install meson ninja
 
       - name: Setup
-        run: meson setup --prefix=${{ github.workspace }}/install builddir
+        run: meson setup --prefix=/usr/local --libdir=lib builddir
 
       - name: Build
         run: meson compile -C builddir
 
       - name: Install
-        run: meson install -C builddir
+        run: DESTDIR=${{ github.workspace }}/install meson install -C builddir
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
