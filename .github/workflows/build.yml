@@ -25,13 +25,23 @@ jobs:
             g++
 
       - name: Setup
-        run: meson setup --force-fallback-for=abseil-cpp builddir
+        run: meson setup --force-fallback-for=abseil-cpp --prefix=${{ github.workspace }}/install builddir
 
       - name: Build
         run: meson compile -C builddir
 
+      - name: Install
+        run: meson install -C builddir
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: webrtc-audio-processing-linux-x64
+          path: install/
+          retention-days: 30
+
       - name: Upload logs
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: linux-logs
@@ -57,13 +67,23 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Setup
-        run: meson setup builddir -Dcpp_std=c++20
+        run: meson setup --prefix=${{ github.workspace }}/install builddir -Dcpp_std=c++20
 
       - name: Build
         run: meson compile -C builddir
 
+      - name: Install
+        run: meson install -C builddir
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: webrtc-audio-processing-windows-x64
+          path: install/
+          retention-days: 30
+
       - name: Upload logs
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: windows-logs
@@ -81,13 +101,23 @@ jobs:
           brew install meson ninja
 
       - name: Setup
-        run: meson setup builddir
+        run: meson setup --prefix=${{ github.workspace }}/install builddir
 
       - name: Build
         run: meson compile -C builddir
 
+      - name: Install
+        run: meson install -C builddir
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: webrtc-audio-processing-macos-x64
+          path: install/
+          retention-days: 30
+
       - name: Upload logs
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: macos-logs
