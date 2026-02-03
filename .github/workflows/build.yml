@@ -10,9 +10,6 @@ on:
 jobs:
   build-linux:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        build-type: [distro-absl, vendored-absl]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,15 +22,9 @@ jobs:
             ninja-build \
             pkg-config \
             python3-setuptools \
-            g++ \
-            libabsl-dev
+            g++
 
-      - name: Setup (distro abseil)
-        if: matrix.build-type == 'distro-absl'
-        run: meson setup --wrap-mode=nofallback builddir
-
-      - name: Setup (vendored abseil)
-        if: matrix.build-type == 'vendored-absl'
+      - name: Setup
         run: meson setup --force-fallback-for=abseil-cpp builddir
 
       - name: Build
@@ -43,7 +34,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: linux-${{ matrix.build-type }}-logs
+          name: linux-logs
           path: builddir/meson-logs/*.txt
           retention-days: 5
 
