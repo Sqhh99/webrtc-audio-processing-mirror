@@ -1,0 +1,104 @@
+name: Build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        build-type: [distro-absl, vendored-absl]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            meson \
+            ninja-build \
+            pkg-config \
+            python3-setuptools \
+            g++ \
+            libabsl-dev
+
+      - name: Setup (distro abseil)
+        if: matrix.build-type == 'distro-absl'
+        run: meson setup --wrap-mode=nofallback builddir
+
+      - name: Setup (vendored abseil)
+        if: matrix.build-type == 'vendored-absl'
+        run: meson setup --force-fallback-for=abseil-cpp builddir
+
+      - name: Build
+        run: meson compile -C builddir
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-${{ matrix.build-type }}-logs
+          path: builddir/meson-logs/*.txt
+          retention-days: 5
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install meson ninja
+
+      - name: Setup MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Setup
+        run: meson setup builddir -Dcpp_std=c++20
+
+      - name: Build
+        run: meson compile -C builddir
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-logs
+          path: builddir/meson-logs/*.txt
+          retention-days: 5
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          brew install meson ninja
+
+      - name: Setup
+        run: meson setup builddir
+
+      - name: Build
+        run: meson compile -C builddir
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-logs
+          path: builddir/meson-logs/*.txt
+          retention-days: 5
