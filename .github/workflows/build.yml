@@ -31,15 +31,13 @@ jobs:
         run: meson compile -C builddir
 
       - name: Install
-        run: |
-          mkdir -p install
-          DESTDIR=${{ github.workspace }}/install meson install -C builddir
+        run: DESTDIR=$PWD/_install meson install -C builddir
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: webrtc-audio-processing-linux-x64
-          path: install/
+          path: _install/
           retention-days: 30
 
       - name: Upload logs
@@ -62,14 +60,13 @@ jobs:
           python-version: '3.x'
 
       - name: Install dependencies
-        run: |
-          pip install meson ninja
+        run: pip install meson ninja
 
       - name: Setup MSVC environment
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Setup
-        run: meson setup --force-fallback-for=abseil-cpp --buildtype=release --prefix=C:/install --libdir=lib builddir -Dcpp_std=c++20
+        run: meson setup --force-fallback-for=abseil-cpp --buildtype=release --prefix="$pwd/_install" --libdir=lib builddir -Dcpp_std=c++20
 
       - name: Build
         run: meson compile -C builddir
@@ -81,7 +78,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: webrtc-audio-processing-windows-x64
-          path: C:/install/
+          path: _install/
           retention-days: 30
 
       - name: Upload logs
@@ -101,8 +98,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install dependencies
-        run: |
-          brew install meson ninja
+        run: brew install meson ninja
 
       - name: Setup
         run: meson setup --force-fallback-for=abseil-cpp --buildtype=release --prefix=/usr/local --libdir=lib builddir
@@ -111,15 +107,13 @@ jobs:
         run: meson compile -C builddir
 
       - name: Install
-        run: |
-          mkdir -p install
-          DESTDIR=${{ github.workspace }}/install meson install -C builddir
+        run: DESTDIR=$PWD/_install meson install -C builddir
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: webrtc-audio-processing-macos-x64
-          path: install/
+          path: _install/
           retention-days: 30
 
       - name: Upload logs
