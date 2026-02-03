@@ -25,13 +25,15 @@ jobs:
             g++
 
       - name: Setup
-        run: meson setup --force-fallback-for=abseil-cpp --prefix=/usr --libdir=lib builddir
+        run: meson setup --force-fallback-for=abseil-cpp --buildtype=release --prefix=/usr --libdir=lib builddir
 
       - name: Build
         run: meson compile -C builddir
 
       - name: Install
-        run: DESTDIR=${{ github.workspace }}/install meson install -C builddir
+        run: |
+          mkdir -p install
+          DESTDIR=${{ github.workspace }}/install meson install -C builddir
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -67,7 +69,7 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Setup
-        run: meson setup --prefix=C:/install --libdir=lib builddir -Dcpp_std=c++20
+        run: meson setup --force-fallback-for=abseil-cpp --buildtype=release --prefix=C:/install --libdir=lib builddir -Dcpp_std=c++20
 
       - name: Build
         run: meson compile -C builddir
@@ -92,6 +94,8 @@ jobs:
 
   build-macos:
     runs-on: macos-latest
+    env:
+      MACOSX_DEPLOYMENT_TARGET: '12.0'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -101,13 +105,15 @@ jobs:
           brew install meson ninja
 
       - name: Setup
-        run: meson setup --prefix=/usr/local --libdir=lib builddir
+        run: meson setup --force-fallback-for=abseil-cpp --buildtype=release --prefix=/usr/local --libdir=lib builddir
 
       - name: Build
         run: meson compile -C builddir
 
       - name: Install
-        run: DESTDIR=${{ github.workspace }}/install meson install -C builddir
+        run: |
+          mkdir -p install
+          DESTDIR=${{ github.workspace }}/install meson install -C builddir
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
