@@ -25,13 +25,13 @@ jobs:
             g++
 
       - name: Setup
-        run: meson setup --force-fallback-for=abseil-cpp --buildtype=release --prefix=/usr --libdir=lib builddir
+        run: meson setup --force-fallback-for=abseil-cpp --buildtype=release --prefix=$PWD/_install --libdir=lib builddir
 
       - name: Build
         run: meson compile -C builddir
 
       - name: Install
-        run: DESTDIR=$PWD/_install meson install -C builddir
+        run: meson install -C builddir
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -101,13 +101,13 @@ jobs:
         run: brew install meson ninja
 
       - name: Setup
-        run: meson setup --force-fallback-for=abseil-cpp --buildtype=release --prefix=/usr/local --libdir=lib builddir
+        run: meson setup --force-fallback-for=abseil-cpp --buildtype=release --prefix=$PWD/_install --libdir=lib builddir
 
       - name: Build
         run: meson compile -C builddir
 
       - name: Install
-        run: DESTDIR=$PWD/_install meson install -C builddir
+        run: meson install -C builddir
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
