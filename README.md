@@ -1,5 +1,7 @@
 # About
 
+> **Note**: This is a GitHub mirror of the original [webrtc-audio-processing](https://gitlab.freedesktop.org/pulseaudio/webrtc-audio-processing) repository hosted on GitLab. Since the original repository is on GitLab and cannot be directly forked to GitHub, this mirror was created to provide GitHub Actions CI/CD and pre-built binaries for Windows, Linux, and macOS. Pre-built binaries are available in the [Releases](https://github.com/Sqhh99/webrtc-audio-processing-mirror/releases) page.
+
 This is meant to be a more Linux packaging friendly copy of the AudioProcessing
 module from the [ WebRTC ](https://webrtc.googlesource.com/src) project. The
 ideal case is that we make no changes to the code to make tracking upstream

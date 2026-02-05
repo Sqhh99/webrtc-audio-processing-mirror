@@ -1,0 +1,154 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g., v2.1.0)'
+        required: true
+        type: string
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y meson ninja-build pkg-config python3-setuptools g++
+
+      - name: Setup
+        run: meson setup --force-fallback-for=abseil-cpp --buildtype=release --prefix=$PWD/_install --libdir=lib builddir
+
+      - name: Build
+        run: meson compile -C builddir
+
+      - name: Install
+        run: meson install -C builddir
+
+      - name: Package
+        run: |
+          cd _install
+          tar -czvf ../webrtc-audio-processing-linux-x64.tar.gz .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: webrtc-audio-processing-linux-x64
+          path: webrtc-audio-processing-linux-x64.tar.gz
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install meson ninja
+
+      - name: Setup MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Setup
+        run: meson setup --force-fallback-for=abseil-cpp --buildtype=release --prefix="$pwd/_install" --libdir=lib builddir -Dcpp_std=c++20
+
+      - name: Build
+        run: meson compile -C builddir
+
+      - name: Install
+        run: meson install -C builddir
+
+      - name: Package
+        run: Compress-Archive -Path _install/* -DestinationPath webrtc-audio-processing-windows-x64.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: webrtc-audio-processing-windows-x64
+          path: webrtc-audio-processing-windows-x64.zip
+
+  build-macos:
+    runs-on: macos-latest
+    env:
+      MACOSX_DEPLOYMENT_TARGET: '12.0'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: brew install meson ninja
+
+      - name: Setup
+        run: meson setup --force-fallback-for=abseil-cpp --buildtype=release --prefix=$PWD/_install --libdir=lib builddir
+
+      - name: Build
+        run: meson compile -C builddir
+
+      - name: Install
+        run: meson install -C builddir
+
+      - name: Package
+        run: |
+          cd _install
+          tar -czvf ../webrtc-audio-processing-macos-x64.tar.gz .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: webrtc-audio-processing-macos-x64
+          path: webrtc-audio-processing-macos-x64.tar.gz
+
+  release:
+    needs: [build-linux, build-windows, build-macos]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Get tag name
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ inputs.tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: Release ${{ steps.tag.outputs.tag }}
+          body: |
+            ## WebRTC Audio Processing ${{ steps.tag.outputs.tag }}
+
+            Pre-built binaries for Windows, Linux, and macOS.
+
+            ### Downloads
+            - **Linux x64**: `webrtc-audio-processing-linux-x64.tar.gz`
+            - **Windows x64**: `webrtc-audio-processing-windows-x64.zip`
+            - **macOS x64**: `webrtc-audio-processing-macos-x64.tar.gz`
+
+            ### Note
+            This is a mirror of the original [GitLab repository](https://gitlab.freedesktop.org/pulseaudio/webrtc-audio-processing).
+          files: |
+            artifacts/webrtc-audio-processing-linux-x64/webrtc-audio-processing-linux-x64.tar.gz
+            artifacts/webrtc-audio-processing-windows-x64/webrtc-audio-processing-windows-x64.zip
+            artifacts/webrtc-audio-processing-macos-x64/webrtc-audio-processing-macos-x64.tar.gz
+          draft: false
+          prerelease: false
