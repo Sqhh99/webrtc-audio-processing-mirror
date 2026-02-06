@@ -89,8 +89,8 @@ jobs:
           path: builddir/meson-logs/*.txt
           retention-days: 5
 
-  build-macos:
-    runs-on: macos-latest
+  build-macos-x64:
+    runs-on: macos-13
     env:
       MACOSX_DEPLOYMENT_TARGET: '12.0'
     steps:
@@ -120,6 +120,41 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: macos-logs
+          name: macos-x64-logs
+          path: builddir/meson-logs/*.txt
+          retention-days: 5
+
+  build-macos-arm64:
+    runs-on: macos-14
+    env:
+      MACOSX_DEPLOYMENT_TARGET: '12.0'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: brew install meson ninja
+
+      - name: Setup
+        run: meson setup --force-fallback-for=abseil-cpp --buildtype=release --prefix=$PWD/_install --libdir=lib builddir
+
+      - name: Build
+        run: meson compile -C builddir
+
+      - name: Install
+        run: meson install -C builddir
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: webrtc-audio-processing-macos-arm64
+          path: _install/
+          retention-days: 30
+
+      - name: Upload logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-arm64-logs
           path: builddir/meson-logs/*.txt
           retention-days: 5

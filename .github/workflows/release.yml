@@ -78,8 +78,8 @@ jobs:
           name: webrtc-audio-processing-windows-x64
           path: webrtc-audio-processing-windows-x64.zip
 
-  build-macos:
-    runs-on: macos-latest
+  build-macos-x64:
+    runs-on: macos-13
     env:
       MACOSX_DEPLOYMENT_TARGET: '12.0'
     steps:
@@ -109,8 +109,39 @@ jobs:
           name: webrtc-audio-processing-macos-x64
           path: webrtc-audio-processing-macos-x64.tar.gz
 
+  build-macos-arm64:
+    runs-on: macos-14
+    env:
+      MACOSX_DEPLOYMENT_TARGET: '12.0'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: brew install meson ninja
+
+      - name: Setup
+        run: meson setup --force-fallback-for=abseil-cpp --buildtype=release --prefix=$PWD/_install --libdir=lib builddir
+
+      - name: Build
+        run: meson compile -C builddir
+
+      - name: Install
+        run: meson install -C builddir
+
+      - name: Package
+        run: |
+          cd _install
+          tar -czvf ../webrtc-audio-processing-macos-arm64.tar.gz .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: webrtc-audio-processing-macos-arm64
+          path: webrtc-audio-processing-macos-arm64.tar.gz
+
   release:
-    needs: [build-linux, build-windows, build-macos]
+    needs: [build-linux, build-windows, build-macos-x64, build-macos-arm64]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -143,6 +174,7 @@ jobs:
             - **Linux x64**: `webrtc-audio-processing-linux-x64.tar.gz`
             - **Windows x64**: `webrtc-audio-processing-windows-x64.zip`
             - **macOS x64**: `webrtc-audio-processing-macos-x64.tar.gz`
+            - **macOS arm64**: `webrtc-audio-processing-macos-arm64.tar.gz`
 
             ### Note
             This is a mirror of the original [GitLab repository](https://gitlab.freedesktop.org/pulseaudio/webrtc-audio-processing).
@@ -150,5 +182,6 @@ jobs:
             artifacts/webrtc-audio-processing-linux-x64/webrtc-audio-processing-linux-x64.tar.gz
             artifacts/webrtc-audio-processing-windows-x64/webrtc-audio-processing-windows-x64.zip
             artifacts/webrtc-audio-processing-macos-x64/webrtc-audio-processing-macos-x64.tar.gz
+            artifacts/webrtc-audio-processing-macos-arm64/webrtc-audio-processing-macos-arm64.tar.gz
           draft: false
           prerelease: false
