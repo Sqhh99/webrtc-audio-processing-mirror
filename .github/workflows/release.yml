@@ -79,7 +79,7 @@ jobs:
           path: webrtc-audio-processing-windows-x64.zip
 
   build-macos-x64:
-    runs-on: macos-15
+    runs-on: macos-15-intel
     env:
       MACOSX_DEPLOYMENT_TARGET: '12.0'
     steps:
