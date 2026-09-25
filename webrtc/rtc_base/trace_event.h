@@ -11,6 +11,7 @@
 #ifndef RTC_BASE_TRACE_EVENT_H_
 #define RTC_BASE_TRACE_EVENT_H_
 
+#include <cstdint>
 #if defined(RTC_DISABLE_TRACE_EVENTS)
 #define RTC_TRACE_EVENTS_ENABLED 0
 #else
@@ -20,15 +21,14 @@
 // IWYU pragma: begin_exports
 #if defined(RTC_USE_PERFETTO)
 #include "rtc_base/trace_categories.h"
-#include "third_party/perfetto/include/perfetto/tracing/event_context.h"
-#include "third_party/perfetto/include/perfetto/tracing/track.h"
-#include "third_party/perfetto/include/perfetto/tracing/track_event_args.h"
+#include "third_party/perfetto/include/perfetto/tracing/event_context.h"  // nogncheck
+#include "third_party/perfetto/include/perfetto/tracing/track.h"  // nogncheck
+#include "third_party/perfetto/include/perfetto/tracing/track_event_args.h"  // nogncheck
 #endif
 // IWYU pragma: end_exports
 
 #if !defined(RTC_USE_PERFETTO)
 #include <string>
-#include <cstdint>
 
 #include "rtc_base/event_tracer.h"
 

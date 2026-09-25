@@ -1,7 +1,6 @@
 apm_flags = ['-DWEBRTC_APM_DEBUG_DUMP=0']
 
 webrtc_audio_processing_sources = [
-  'aec_dump/null_aec_dump_factory.cc',
   'aec3/adaptive_fir_filter.cc',
   'aec3/adaptive_fir_filter_erl.cc',
   'aec3/aec3_common.cc',
@@ -27,15 +26,15 @@ webrtc_audio_processing_sources = [
   'aec3/echo_path_variability.cc',
   'aec3/echo_remover.cc',
   'aec3/echo_remover_metrics.cc',
-  'aec3/erle_estimator.cc',
   'aec3/erl_estimator.cc',
+  'aec3/erle_estimator.cc',
   'aec3/fft_buffer.cc',
   'aec3/filter_analyzer.cc',
   'aec3/frame_blocker.cc',
   'aec3/fullband_erle_estimator.cc',
   'aec3/matched_filter.cc',
   'aec3/matched_filter_lag_aggregator.cc',
-  'aec3/moving_average.cc',
+  'aec3/moving_average_spectrum.cc',
   'aec3/multi_channel_content_detector.cc',
   'aec3/refined_filter_update_gain.cc',
   'aec3/render_buffer.cc',
@@ -54,13 +53,12 @@ webrtc_audio_processing_sources = [
   'aec3/subband_erle_estimator.cc',
   'aec3/subband_nearend_detector.cc',
   'aec3/subtractor.cc',
-  'aec3/subtractor_output_analyzer.cc',
   'aec3/subtractor_output.cc',
+  'aec3/subtractor_output_analyzer.cc',
   'aec3/suppression_filter.cc',
   'aec3/suppression_gain.cc',
   'aec3/transparent_mode.cc',
-  'aecm/aecm_core.cc',
-  'aecm/echo_control_mobile.cc',
+  'aec_dump/null_aec_dump_factory.cc',
   'agc/agc.cc',
   'agc/agc_manager_direct.cc',
   'agc/legacy/analog_agc.cc',
@@ -95,15 +93,22 @@ webrtc_audio_processing_sources = [
   'agc2/saturation_protector.cc',
   'agc2/saturation_protector_buffer.cc',
   'agc2/speech_level_estimator.cc',
+  'agc2/speech_level_estimator_experimental_impl.cc',
+  'agc2/speech_level_estimator_impl.cc',
   'agc2/speech_probability_buffer.cc',
   'agc2/vad_wrapper.cc',
   'agc2/vector_float_frame.cc',
   'audio_buffer.cc',
-  'audio_processing_builder_impl.cc',
   'audio_processing_impl.cc',
   'capture_levels_adjuster/audio_samples_scaler.cc',
   'capture_levels_adjuster/capture_levels_adjuster.cc',
-  'echo_control_mobile_impl.cc',
+  'capture_mixer/audio_content_analyzer.cc',
+  'capture_mixer/capture_mixer.cc',
+  'capture_mixer/channel_content_remixer.cc',
+  'capture_mixer/dc_levels_estimator.cc',
+  'capture_mixer/energy_estimator.cc',
+  'capture_mixer/remixing_logic.cc',
+  'capture_mixer/saturation_estimator.cc',
   'echo_detector/circular_buffer.cc',
   'echo_detector/mean_variance_estimator.cc',
   'echo_detector/moving_max.cc',
@@ -127,13 +132,12 @@ webrtc_audio_processing_sources = [
   'ns/speech_probability_estimator.cc',
   'ns/suppression_params.cc',
   'ns/wiener_filter.cc',
+  'post_filter.cc',
   'residual_echo_detector.cc',
   'rms_level.cc',
   'splitting_filter.cc',
   'three_band_filter_bank.cc',
   'utility/cascaded_biquad_filter.cc',
-  'utility/delay_estimator.cc',
-  'utility/delay_estimator_wrapper.cc',
   'utility/pffft_wrapper.cc',
   'vad/gmm.cc',
   'vad/pitch_based_vad.cc',
@@ -167,22 +171,6 @@ if have_x86
       c_args: common_cflags + apm_flags + avx_flags,
       cpp_args: common_cxxflags + apm_flags + avx_flags
     )
-  ]
-endif
-
-if have_mips
-  webrtc_audio_processing_sources += [
-    'aecm/aecm_core_mips.cc',
-  ]
-else
-  webrtc_audio_processing_sources += [
-    'aecm/aecm_core_c.cc',
-  ]
-endif
-
-if neon_opt.enabled()
-  webrtc_audio_processing_sources += [
-    'aecm/aecm_core_neon.cc',
   ]
 endif
 

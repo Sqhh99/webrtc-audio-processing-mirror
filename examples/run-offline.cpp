@@ -9,11 +9,13 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "api/scoped_refptr.h"
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
 
+#include <webrtc/api/audio/builtin_audio_processing_builder.h>
+#include <webrtc/api/environment/environment_factory.h>
+#include <webrtc/api/scoped_refptr.h>
 #include <webrtc/modules/audio_processing/include/audio_processing.h>
 
 #define DEFAULT_BLOCK_MS 10
@@ -30,11 +32,8 @@ int main(int argc, char **argv) {
     std::ifstream rec_file(argv[2], std::ios::binary);
     std::ofstream aec_file(argv[3], std::ios::binary);
 
-    rtc::scoped_refptr<webrtc::AudioProcessing> apm = webrtc::AudioProcessingBuilder().Create();
-
     webrtc::AudioProcessing::Config config;
     config.echo_canceller.enabled = true;
-    config.echo_canceller.mobile_mode = false;
     config.gain_controller1.enabled = true;
     config.gain_controller1.mode = webrtc::AudioProcessing::Config::GainController1::kAdaptiveAnalog;
 
@@ -42,7 +41,8 @@ int main(int argc, char **argv) {
 
     config.high_pass_filter.enabled = true;
 
-    apm->ApplyConfig(config);
+    webrtc::scoped_refptr<webrtc::AudioProcessing> apm =
+        webrtc::BuiltinAudioProcessingBuilder(config).Build(webrtc::CreateEnvironment());
 
     webrtc::StreamConfig stream_config(DEFAULT_RATE, DEFAULT_CHANNELS);
 

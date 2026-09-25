@@ -29,8 +29,8 @@ variables:
   # CI runs, for example when adding new packages to FDO_DISTRIBUTION_PACKAGES.
   # The tag is an arbitrary string that identifies the exact container
   # contents.
-  BASE_TAG: '2024-12-26.0'
-  FDO_DISTRIBUTION_VERSION: '41'
+  BASE_TAG: '2026-09-25.0'
+  FDO_DISTRIBUTION_VERSION: '43'
   FDO_UPSTREAM_REPO: 'pulseaudio/webrtc-audio-processing'
 
 include:

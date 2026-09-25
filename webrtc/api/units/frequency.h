@@ -41,7 +41,7 @@ class Frequency final : public rtc_units_impl::RelativeUnit<Frequency> {
     return FromFraction(1'000'000, value);
   }
 
-  Frequency() = delete;
+  constexpr Frequency() = default;
 
   template <typename Sink>
   friend void AbslStringify(Sink& sink, Frequency value);
@@ -87,9 +87,6 @@ inline constexpr double operator*(TimeDelta time_delta, Frequency frequency) {
 }
 
 RTC_EXPORT std::string ToString(Frequency value);
-inline std::string ToLogString(Frequency value) {
-  return ToString(value);
-}
 
 template <typename Sink>
 void AbslStringify(Sink& sink, Frequency value) {

@@ -1,15 +1,12 @@
 system_wrappers_sources = [
-  'source/cpu_features.cc',
-  'source/denormal_disabler.cc',
-  'source/field_trial.cc',
+  'source/clock.cc',
   'source/metrics.cc',
-  'source/sleep.cc',
 ]
 
 system_headers = [
-  'include/cpu_features_wrapper.h',
+  'include/clock.h',
   'include/metrics.h',
-  'include/sleep.h',
+  'include/ntp_time.h',
 ]
 
 install_headers(system_headers,

@@ -4,7 +4,7 @@ project('webrtc-audio-processing', 'c', 'cpp',
   default_options : [ 'warning_level=1',
                       'buildtype=debugoptimized',
                       'c_std=c11',
-                      'cpp_std=c++17',
+                      'cpp_std=c++20',
                     ]
 )
 
@@ -49,7 +49,7 @@ have_win = false
 # if pkg-config is not found, which is really the most reliable way of building
 # abseil due to strict C++ standard match requirements.
 absl_dep = [
-  dependency('absl_base', default_options: ['cpp_std=c++17'], version: '>=20240722'),
+  dependency('absl_base', default_options: ['cpp_std=c++20'], version: '>=20250814'),
   dependency('absl_flags'),
   dependency('absl_strings'),
   dependency('absl_numeric'),
