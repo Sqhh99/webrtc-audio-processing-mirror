@@ -1,0 +1,41 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 25 Sep 2026 17:46:48 +0000
+Subject: [PATCH] echo_detector: Use std::isfinite
+
+The unqualified isfinite() only happens to work with libc++, which also
+exports it in the global namespace. Fixes the build with libstdc++.
+---
+diff --git a/webrtc/modules/audio_processing/echo_detector/mean_variance_estimator.cc b/webrtc/modules/audio_processing/echo_detector/mean_variance_estimator.cc
+index ab744c3..a9ebb8c 100644
+--- a/webrtc/modules/audio_processing/echo_detector/mean_variance_estimator.cc
++++ b/webrtc/modules/audio_processing/echo_detector/mean_variance_estimator.cc
+@@ -26,8 +26,8 @@ void MeanVarianceEstimator::Update(float value) {
+   mean_ = (1.f - kAlpha) * mean_ + kAlpha * value;
+   variance_ =
+       (1.f - kAlpha) * variance_ + kAlpha * (value - mean_) * (value - mean_);
+-  RTC_DCHECK(isfinite(mean_));
+-  RTC_DCHECK(isfinite(variance_));
++  RTC_DCHECK(std::isfinite(mean_));
++  RTC_DCHECK(std::isfinite(variance_));
+ }
+ 
+ float MeanVarianceEstimator::std_deviation() const {
+diff --git a/webrtc/modules/audio_processing/echo_detector/normalized_covariance_estimator.cc b/webrtc/modules/audio_processing/echo_detector/normalized_covariance_estimator.cc
+index fa1573b..8be8945 100644
+--- a/webrtc/modules/audio_processing/echo_detector/normalized_covariance_estimator.cc
++++ b/webrtc/modules/audio_processing/echo_detector/normalized_covariance_estimator.cc
+@@ -31,8 +31,8 @@ void NormalizedCovarianceEstimator::Update(float x,
+   covariance_ =
+       (1.f - kAlpha) * covariance_ + kAlpha * (x - x_mean) * (y - y_mean);
+   normalized_cross_correlation_ = covariance_ / (x_sigma * y_sigma + .0001f);
+-  RTC_DCHECK(isfinite(covariance_));
+-  RTC_DCHECK(isfinite(normalized_cross_correlation_));
++  RTC_DCHECK(std::isfinite(covariance_));
++  RTC_DCHECK(std::isfinite(normalized_cross_correlation_));
+ }
+ 
+ void NormalizedCovarianceEstimator::Clear() {
+-- 
+2.49.0
+

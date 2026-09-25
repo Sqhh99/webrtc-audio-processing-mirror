@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 25 Sep 2026 17:46:48 +0000
+Subject: [PATCH] platform_thread_types: Only include asm/unistd_64.h on
+ x86_64
+
+Upstream includes <asm/unistd_64.h> on every non-ARM Linux target, but that
+header does not exist on most other architectures (MIPS, RISC-V, s390x,
+PowerPC, LoongArch, ...), and on 32-bit x86 it would redefine __NR_gettid
+with the 64-bit syscall number. <sys/syscall.h> already provides the right
+definition everywhere, so restrict the include to x86_64 (LP64).
+---
+diff --git a/webrtc/rtc_base/platform_thread_types.cc b/webrtc/rtc_base/platform_thread_types.cc
+index b521f61..c72ca2c 100644
+--- a/webrtc/rtc_base/platform_thread_types.cc
++++ b/webrtc/rtc_base/platform_thread_types.cc
+@@ -16,7 +16,7 @@
+ #include <sys/prctl.h>
+ #include <sys/syscall.h>
+ 
+-#if !defined(WEBRTC_ARCH_ARM) && !defined(WEBRTC_ARCH_ARM64)
++#if defined(__x86_64__) && !defined(__ILP32__)
+ #include <asm/unistd_64.h>
+ #endif
+ #endif
+-- 
+2.49.0
+

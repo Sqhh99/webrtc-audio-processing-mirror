@@ -9,10 +9,10 @@ Repplying 0a0050746bc20ef970b9f260d485e4367c7ba854 after M131 bump.
  1 file changed, 20 insertions(+), 10 deletions(-)
 
 diff --git a/webrtc/modules/audio_processing/aec3/matched_filter_avx2.cc b/webrtc/modules/audio_processing/aec3/matched_filter_avx2.cc
-index 8c2ffcb..65a1b76 100644
+index eacd648..2d9d661 100644
 --- a/webrtc/modules/audio_processing/aec3/matched_filter_avx2.cc
 +++ b/webrtc/modules/audio_processing/aec3/matched_filter_avx2.cc
-@@ -13,6 +13,16 @@
+@@ -17,6 +17,16 @@
  #include "modules/audio_processing/aec3/matched_filter.h"
  #include "rtc_base/checks.h"
  
@@ -27,9 +27,9 @@ index 8c2ffcb..65a1b76 100644
 +#endif
 +
  namespace webrtc {
- namespace aec3 {
  
-@@ -81,14 +91,14 @@ void MatchedFilterCore_AccumulatedError_AVX2(
+ // Let ha denote the horizontal of a, and hb the horizontal sum of b
+@@ -82,14 +92,14 @@ void MatchedFilterCore_AccumulatedError_AVX2(size_t x_start_index,
        s_inst_256_8 = _mm256_mul_ps(h_k_8, x_k_8);
        s_inst_hadd_256 = _mm256_hadd_ps(s_inst_256, s_inst_256_8);
        s_inst_hadd_256 = _mm256_hadd_ps(s_inst_hadd_256, s_inst_hadd_256);
@@ -50,9 +50,9 @@ index 8c2ffcb..65a1b76 100644
 +      s_acum += LOOKUP_M256(s_inst_hadd_256,5);
 +      LOOKUP_M128(e_128, 3) = s_acum - y[i];
  
-       __m128 accumulated_error = _mm_load_ps(a_p);
-       accumulated_error = _mm_fmadd_ps(e_128, e_128, accumulated_error);
-@@ -209,8 +219,8 @@ void MatchedFilterCore_AVX2(size_t x_start_index,
+       __m128 acum_error = _mm_loadu_ps(a_p);
+       acum_error = _mm_fmadd_ps(e_128, e_128, acum_error);
+@@ -210,8 +220,8 @@ void MatchedFilterCore_AVX2(size_t x_start_index,
      x2_sum_256 = _mm256_add_ps(x2_sum_256, x2_sum_256_8);
      s_256 = _mm256_add_ps(s_256, s_256_8);
      __m128 sum = hsum_ab(x2_sum_256, s_256);

@@ -30,17 +30,17 @@ C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared\ws2def.h(496)
  1 file changed, 1 insertion(+)
 
 diff --git a/webrtc/rtc_base/logging.cc b/webrtc/rtc_base/logging.cc
-index 61a3c66..825c686 100644
+index 0be1b8f..a258704 100644
 --- a/webrtc/rtc_base/logging.cc
 +++ b/webrtc/rtc_base/logging.cc
-@@ -15,6 +15,7 @@
+@@ -38,6 +38,7 @@
  #if RTC_LOG_ENABLED()
  
  #if defined(WEBRTC_WIN)
 +#include <winsock2.h>
  #include <windows.h>
- #if _MSC_VER < 1900
- #define snprintf _snprintf
+ #undef ERROR  // wingdi.h
+ #endif
 -- 
 2.47.1
 

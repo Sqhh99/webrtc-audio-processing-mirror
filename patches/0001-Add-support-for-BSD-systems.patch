@@ -65,11 +65,11 @@ index 8d85d56..05a434a 100644
    platform_cflags += ['-DWEBRTC_WIN', '-D_WIN32']
    # this one is for MinGW to get format specifiers from inttypes.h in C++
 diff --git a/webrtc/rtc_base/platform_thread_types.cc b/webrtc/rtc_base/platform_thread_types.cc
-index d64ea68..e98e8ec 100644
+index 20bf4af..fc63329 100644
 --- a/webrtc/rtc_base/platform_thread_types.cc
 +++ b/webrtc/rtc_base/platform_thread_types.cc
-@@ -15,6 +15,12 @@
- #include <sys/syscall.h>
+@@ -21,6 +21,12 @@
+ #endif
  #endif
  
 +#if defined(__DragonFly__) || defined(__FreeBSD__) || defined(__OpenBSD__) // WEBRTC_BSD
@@ -79,9 +79,9 @@ index d64ea68..e98e8ec 100644
 +#endif
 +
  #if defined(WEBRTC_WIN)
- #include "rtc_base/arraysize.h"
+ #include <iterator>
  
-@@ -46,6 +52,12 @@ PlatformThreadId CurrentThreadId() {
+@@ -52,6 +58,12 @@ PlatformThreadId CurrentThreadId() {
    return zx_thread_self();
  #elif defined(WEBRTC_LINUX)
    return syscall(__NR_gettid);
@@ -94,7 +94,7 @@ index d64ea68..e98e8ec 100644
  #elif defined(__EMSCRIPTEN__)
    return static_cast<PlatformThreadId>(pthread_self());
  #else
-@@ -116,6 +128,10 @@ void SetCurrentThreadName(const char* name) {
+@@ -122,6 +134,10 @@ void SetCurrentThreadName(const char* name) {
    prctl(PR_SET_NAME, reinterpret_cast<unsigned long>(name));  // NOLINT
  #elif defined(WEBRTC_MAC) || defined(WEBRTC_IOS)
    pthread_setname_np(name);
