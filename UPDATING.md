@@ -31,6 +31,16 @@ project source code.
    * Arch-specific files usually have special handling in the corresponding
      meson.build.
 
+   * ```webrtc/experiments/registered_field_trials.h``` is generated at build
+     time upstream. Regenerate it with
+     ```python3 webrtc/experiments/field_trials.py header --output webrtc/experiments/registered_field_trials.h```.
+
+   * ```webrtc/third_party/pffft``` and ```webrtc/third_party/rnnoise``` come
+     from the Chromium tree (```chromium/src/third_party```), not WebRTC.
+
+   * Re-apply the patches in ```patches/``` and refresh them against the new
+     code.
+
 4. Once everything has been copied and updated, everything needs to be built.
    Missing dependencies (files that were not copied, or new modules that are
    being depended on) will first turn up here.
