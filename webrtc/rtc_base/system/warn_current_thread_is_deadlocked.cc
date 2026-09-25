@@ -11,18 +11,13 @@
 #include "rtc_base/system/warn_current_thread_is_deadlocked.h"
 
 #include "rtc_base/logging.h"
-#if 0
-# commented out to prevent pulling in extra android files
 #include "sdk/android/native_api/stacktrace/stacktrace.h"
-#endif
 
 namespace webrtc {
 
 void WarnThatTheCurrentThreadIsProbablyDeadlocked() {
   RTC_LOG(LS_WARNING) << "Probable deadlock:";
-#if 0
   RTC_LOG(LS_WARNING) << StackTraceToString(GetStackTrace());
-#endif
 }
 
 }  // namespace webrtc

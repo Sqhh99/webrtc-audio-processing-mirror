@@ -13,9 +13,10 @@
 
 #include <atomic>
 #include <memory>
-#include <string>
+#include <optional>
 
 #include "api/audio/audio_processing.h"
+#include "api/environment/environment.h"
 #include "modules/audio_processing/agc2/adaptive_digital_gain_controller.h"
 #include "modules/audio_processing/agc2/cpu_features.h"
 #include "modules/audio_processing/agc2/gain_applier.h"
@@ -38,6 +39,7 @@ class GainController2 {
   // Ctor. If `use_internal_vad` is true, an internal voice activity
   // detector is used for digital adaptive gain.
   GainController2(
+      const Environment& env,
       const AudioProcessing::Config::GainController2& config,
       const InputVolumeController::Config& input_volume_controller_config,
       int sample_rate_hz,
@@ -68,10 +70,7 @@ class GainController2 {
   // computes the speech probability via `vad_`.
   // Handles input volume changes; if the caller cannot determine whether an
   // input volume change occurred, set `input_volume_changed` to false.
-  // TODO(bugs.webrtc.org/7494): Remove `speech_probability`.
-  void Process(std::optional<float> speech_probability,
-               bool input_volume_changed,
-               AudioBuffer* audio);
+  void Process(bool input_volume_changed, AudioBuffer* audio);
 
   static bool Validate(const AudioProcessing::Config::GainController2& config);
 

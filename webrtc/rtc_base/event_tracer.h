@@ -29,6 +29,7 @@
 #include <stdio.h>
 
 #include "absl/strings/string_view.h"
+#include "api/environment/environment.h"
 #include "rtc_base/system/rtc_export.h"
 
 namespace webrtc {
@@ -72,17 +73,24 @@ class EventTracer {
 };
 #endif
 
-}  // namespace webrtc
-
-namespace rtc::tracing {
+namespace tracing {
 // Set up internal event tracer.
 // TODO(webrtc:15917): Implement for perfetto.
+RTC_EXPORT void SetupInternalTracer(const Environment& env,
+                                    bool enable_all_categories = true);
+
+// TODO(https://issues.webrtc.org/481963632): Remove once this is no longer
+// used.
+// deprecated: use SetupInternalTracer(const Environment&, bool)
 RTC_EXPORT void SetupInternalTracer(bool enable_all_categories = true);
+
 RTC_EXPORT bool StartInternalCapture(absl::string_view filename);
 RTC_EXPORT void StartInternalCaptureToFile(FILE* file);
 RTC_EXPORT void StopInternalCapture();
 // Make sure we run this, this will tear down the internal tracing.
 RTC_EXPORT void ShutdownInternalTracer();
-}  // namespace rtc::tracing
+}  // namespace tracing
+
+}  // namespace webrtc
 
 #endif  // RTC_BASE_EVENT_TRACER_H_

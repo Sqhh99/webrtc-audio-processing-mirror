@@ -11,13 +11,14 @@
 #include "rtc_base/string_encode.h"
 
 #include <cstdio>
+#include <span>
+#include <string>
+#include <vector>
 
 #include "absl/strings/string_view.h"
-#include "api/array_view.h"
-#include "rtc_base/arraysize.h"
 #include "rtc_base/checks.h"
 
-namespace rtc {
+namespace webrtc {
 
 /////////////////////////////////////////////////////////////////////////////
 // String Encoding Utilities
@@ -66,7 +67,7 @@ void hex_encode_with_delimiter(char* buffer,
   while (srcpos < srclen) {
     unsigned char ch = bsource[srcpos++];
     buffer[bufpos] = hex_encode((ch >> 4) & 0xF);
-    buffer[bufpos + 1] = hex_encode((ch)&0xF);
+    buffer[bufpos + 1] = hex_encode((ch) & 0xF);
     bufpos += 2;
 
     // Don't write a delimiter after the last byte.
@@ -90,7 +91,7 @@ std::string hex_encode_with_delimiter(absl::string_view source,
   return s;
 }
 
-size_t hex_decode_with_delimiter(ArrayView<char> cbuffer,
+size_t hex_decode_with_delimiter(std::span<char> cbuffer,
                                  absl::string_view source,
                                  char delimiter) {
   if (cbuffer.empty())
@@ -130,7 +131,7 @@ size_t hex_decode_with_delimiter(ArrayView<char> cbuffer,
   return bufpos;
 }
 
-size_t hex_decode(ArrayView<char> buffer, absl::string_view source) {
+size_t hex_decode(std::span<char> buffer, absl::string_view source) {
   return hex_decode_with_delimiter(buffer, source, 0);
 }
 
@@ -187,19 +188,6 @@ std::vector<absl::string_view> split(absl::string_view source, char delimiter) {
   return fields;
 }
 
-template <>
-std::string ToString(bool b) {
-  return b ? "true" : "false";
-}
-
-template <>
-std::string ToString(long double d) {
-  char buf[32];
-  const int len = std::snprintf(&buf[0], arraysize(buf), "%Lg", d);
-  RTC_DCHECK_LE(len, arraysize(buf));
-  return std::string(&buf[0], len);
-}
-
 bool FromString(absl::string_view s, bool* b) {
   if (s == "false") {
     *b = false;
@@ -212,4 +200,4 @@ bool FromString(absl::string_view s, bool* b) {
   return false;
 }
 
-}  // namespace rtc
+}  // namespace webrtc
