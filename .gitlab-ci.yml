@@ -98,7 +98,7 @@ build-container-aarch64:
     - ninja -C builddir
     - DESTDIR=$PWD/_install ninja install -C builddir
       # Test that the pc files are usable
-    - PKG_CONFIG_PATH=$PWD/_install/usr/lib/pkgconfig pkg-config --cflags --libs webrtc-audio-processing-2
+    - PKG_CONFIG_PATH=$PWD/_install/usr/lib/pkgconfig pkg-config --cflags --libs webrtc-audio-processing-3
   artifacts:
     expire_in: '5 days'
     when: 'always'
@@ -114,7 +114,7 @@ build-container-aarch64:
     - ninja -C builddir
     - DESTDIR=$PWD/_install ninja install -C builddir
       # Test that the pc files are usable
-    - PKG_CONFIG_LIBDIR=$PWD/_install/usr/lib/pkgconfig pkg-config --cflags --libs webrtc-audio-processing-2
+    - PKG_CONFIG_LIBDIR=$PWD/_install/usr/lib/pkgconfig pkg-config --cflags --libs webrtc-audio-processing-3
   artifacts:
     expire_in: '5 days'
     when: 'always'
