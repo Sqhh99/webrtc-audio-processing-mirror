@@ -16,10 +16,10 @@ as it raises a Windows structured exception.
  2 files changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/webrtc/rtc_base/platform_thread_types.cc b/webrtc/rtc_base/platform_thread_types.cc
-index e98e8ec..1a24881 100644
+index fc63329..b521f61 100644
 --- a/webrtc/rtc_base/platform_thread_types.cc
 +++ b/webrtc/rtc_base/platform_thread_types.cc
-@@ -118,11 +118,13 @@ void SetCurrentThreadName(const char* name) {
+@@ -124,11 +124,13 @@ void SetCurrentThreadName(const char* name) {
  
  #pragma warning(push)
  #pragma warning(disable : 6320 6322)
@@ -34,10 +34,10 @@ index e98e8ec..1a24881 100644
  #elif defined(WEBRTC_LINUX) || defined(WEBRTC_ANDROID)
    prctl(PR_SET_NAME, reinterpret_cast<unsigned long>(name));  // NOLINT
 diff --git a/webrtc/rtc_base/system/file_wrapper.cc b/webrtc/rtc_base/system/file_wrapper.cc
-index 12c27a5..3203bc6 100644
+index 8cba015..46e3317 100644
 --- a/webrtc/rtc_base/system/file_wrapper.cc
 +++ b/webrtc/rtc_base/system/file_wrapper.cc
-@@ -22,7 +22,7 @@
+@@ -23,7 +23,7 @@
  #include "rtc_base/numerics/safe_conversions.h"
  
  #ifdef _WIN32

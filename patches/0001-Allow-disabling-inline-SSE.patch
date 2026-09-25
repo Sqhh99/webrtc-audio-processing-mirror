@@ -65,259 +65,6 @@ index c939fb9..d08f356 100644
 +option('inline-sse', type: 'boolean',
 +       value: true,
 +       description: 'Enable inline SSE/SSE2 optimisations (i.e. assume CPU supports SSE/SSE2)')
-diff --git a/webrtc/modules/audio_processing/aec3/adaptive_fir_filter.cc b/webrtc/modules/audio_processing/aec3/adaptive_fir_filter.cc
-index 917aa95..ded0511 100644
---- a/webrtc/modules/audio_processing/aec3/adaptive_fir_filter.cc
-+++ b/webrtc/modules/audio_processing/aec3/adaptive_fir_filter.cc
-@@ -16,7 +16,7 @@
- #if defined(WEBRTC_HAS_NEON)
- #include <arm_neon.h>
- #endif
--#if defined(WEBRTC_ARCH_X86_FAMILY)
-+#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
- #include <emmintrin.h>
- #endif
- #include <math.h>
-@@ -88,7 +88,7 @@ void ComputeFrequencyResponse_Neon(
- }
- #endif
- 
--#if defined(WEBRTC_ARCH_X86_FAMILY)
-+#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
- // Computes and stores the frequency response of the filter.
- void ComputeFrequencyResponse_Sse2(
-     size_t num_partitions,
-@@ -212,7 +212,7 @@ void AdaptPartitions_Neon(const RenderBuffer& render_buffer,
- }
- #endif
- 
--#if defined(WEBRTC_ARCH_X86_FAMILY)
-+#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
- // Adapts the filter partitions. (SSE2 variant)
- void AdaptPartitions_Sse2(const RenderBuffer& render_buffer,
-                           const FftData& G,
-@@ -377,7 +377,7 @@ void ApplyFilter_Neon(const RenderBuffer& render_buffer,
- }
- #endif
- 
--#if defined(WEBRTC_ARCH_X86_FAMILY)
-+#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
- // Produces the filter output (SSE2 variant).
- void ApplyFilter_Sse2(const RenderBuffer& render_buffer,
-                       size_t num_partitions,
-@@ -557,9 +557,11 @@ void AdaptiveFirFilter::Filter(const RenderBuffer& render_buffer,
-   RTC_DCHECK(S);
-   switch (optimization_) {
- #if defined(WEBRTC_ARCH_X86_FAMILY)
-+#if !defined(WAP_DISABLE_INLINE_SSE)
-     case Aec3Optimization::kSse2:
-       aec3::ApplyFilter_Sse2(render_buffer, current_size_partitions_, H_, S);
-       break;
-+#endif
-     case Aec3Optimization::kAvx2:
-       aec3::ApplyFilter_Avx2(render_buffer, current_size_partitions_, H_, S);
-       break;
-@@ -601,9 +603,11 @@ void AdaptiveFirFilter::ComputeFrequencyResponse(
- 
-   switch (optimization_) {
- #if defined(WEBRTC_ARCH_X86_FAMILY)
-+#if !defined(WAP_DISABLE_INLINE_SSE)
-     case Aec3Optimization::kSse2:
-       aec3::ComputeFrequencyResponse_Sse2(current_size_partitions_, H_, H2);
-       break;
-+#endif
-     case Aec3Optimization::kAvx2:
-       aec3::ComputeFrequencyResponse_Avx2(current_size_partitions_, H_, H2);
-       break;
-@@ -626,10 +630,12 @@ void AdaptiveFirFilter::AdaptAndUpdateSize(const RenderBuffer& render_buffer,
-   // Adapt the filter.
-   switch (optimization_) {
- #if defined(WEBRTC_ARCH_X86_FAMILY)
-+#if !defined(WAP_DISABLE_INLINE_SSE)
-     case Aec3Optimization::kSse2:
-       aec3::AdaptPartitions_Sse2(render_buffer, G, current_size_partitions_,
-                                  &H_);
-       break;
-+#endif
-     case Aec3Optimization::kAvx2:
-       aec3::AdaptPartitions_Avx2(render_buffer, G, current_size_partitions_,
-                                  &H_);
-diff --git a/webrtc/modules/audio_processing/aec3/adaptive_fir_filter_erl.cc b/webrtc/modules/audio_processing/aec3/adaptive_fir_filter_erl.cc
-index 45b8813..920d51c 100644
---- a/webrtc/modules/audio_processing/aec3/adaptive_fir_filter_erl.cc
-+++ b/webrtc/modules/audio_processing/aec3/adaptive_fir_filter_erl.cc
-@@ -16,7 +16,7 @@
- #if defined(WEBRTC_HAS_NEON)
- #include <arm_neon.h>
- #endif
--#if defined(WEBRTC_ARCH_X86_FAMILY)
-+#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
- #include <emmintrin.h>
- #endif
- 
-@@ -54,7 +54,7 @@ void ErlComputer_NEON(
- }
- #endif
- 
--#if defined(WEBRTC_ARCH_X86_FAMILY)
-+#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
- // Computes and stores the echo return loss estimate of the filter, which is the
- // sum of the partition frequency responses.
- void ErlComputer_SSE2(
-@@ -82,9 +82,11 @@ void ComputeErl(const Aec3Optimization& optimization,
-   // Update the frequency response and echo return loss for the filter.
-   switch (optimization) {
- #if defined(WEBRTC_ARCH_X86_FAMILY)
-+#if !defined(WAP_DISABLE_INLINE_SSE)
-     case Aec3Optimization::kSse2:
-       aec3::ErlComputer_SSE2(H2, erl);
-       break;
-+#endif
-     case Aec3Optimization::kAvx2:
-       aec3::ErlComputer_AVX2(H2, erl);
-       break;
-diff --git a/webrtc/modules/audio_processing/aec3/fft_data.h b/webrtc/modules/audio_processing/aec3/fft_data.h
-index 9c25e78..892407d 100644
---- a/webrtc/modules/audio_processing/aec3/fft_data.h
-+++ b/webrtc/modules/audio_processing/aec3/fft_data.h
-@@ -14,7 +14,7 @@
- // Defines WEBRTC_ARCH_X86_FAMILY, used below.
- #include "rtc_base/system/arch.h"
- 
--#if defined(WEBRTC_ARCH_X86_FAMILY)
-+#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
- #include <emmintrin.h>
- #endif
- #include <algorithm>
-@@ -49,6 +49,7 @@ struct FftData {
-     RTC_DCHECK_EQ(kFftLengthBy2Plus1, power_spectrum.size());
-     switch (optimization) {
- #if defined(WEBRTC_ARCH_X86_FAMILY)
-+#if !defined(WAP_DISABLE_INLINE_SSE)
-       case Aec3Optimization::kSse2: {
-         constexpr int kNumFourBinBands = kFftLengthBy2 / 4;
-         constexpr int kLimit = kNumFourBinBands * 4;
-@@ -63,6 +64,7 @@ struct FftData {
-         power_spectrum[kFftLengthBy2] = re[kFftLengthBy2] * re[kFftLengthBy2] +
-                                         im[kFftLengthBy2] * im[kFftLengthBy2];
-       } break;
-+#endif
-       case Aec3Optimization::kAvx2:
-         SpectrumAVX2(power_spectrum);
-         break;
-diff --git a/webrtc/modules/audio_processing/aec3/matched_filter.cc b/webrtc/modules/audio_processing/aec3/matched_filter.cc
-index 59a3b46..86f365a 100644
---- a/webrtc/modules/audio_processing/aec3/matched_filter.cc
-+++ b/webrtc/modules/audio_processing/aec3/matched_filter.cc
-@@ -15,7 +15,7 @@
- #if defined(WEBRTC_HAS_NEON)
- #include <arm_neon.h>
- #endif
--#if defined(WEBRTC_ARCH_X86_FAMILY)
-+#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
- #include <emmintrin.h>
- #endif
- #include <algorithm>
-@@ -286,7 +286,7 @@ void MatchedFilterCore_NEON(size_t x_start_index,
- 
- #endif
- 
--#if defined(WEBRTC_ARCH_X86_FAMILY)
-+#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
- 
- void MatchedFilterCore_AccumulatedError_SSE2(
-     size_t x_start_index,
-@@ -695,12 +695,14 @@ void MatchedFilter::Update(const DownsampledRenderBuffer& render_buffer,
- 
-     switch (optimization_) {
- #if defined(WEBRTC_ARCH_X86_FAMILY)
-+#if !defined(WAP_DISABLE_INLINE_SSE)
-       case Aec3Optimization::kSse2:
-         aec3::MatchedFilterCore_SSE2(
-             x_start_index, x2_sum_threshold, smoothing, render_buffer.buffer, y,
-             filters_[n], &filters_updated, &error_sum, compute_pre_echo,
-             instantaneous_accumulated_error_, scratch_memory_);
-         break;
-+#endif
-       case Aec3Optimization::kAvx2:
-         aec3::MatchedFilterCore_AVX2(
-             x_start_index, x2_sum_threshold, smoothing, render_buffer.buffer, y,
-diff --git a/webrtc/modules/audio_processing/aec3/vector_math.h b/webrtc/modules/audio_processing/aec3/vector_math.h
-index e4d1381..1506a44 100644
---- a/webrtc/modules/audio_processing/aec3/vector_math.h
-+++ b/webrtc/modules/audio_processing/aec3/vector_math.h
-@@ -17,7 +17,7 @@
- #if defined(WEBRTC_HAS_NEON)
- #include <arm_neon.h>
- #endif
--#if defined(WEBRTC_ARCH_X86_FAMILY)
-+#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
- #include <emmintrin.h>
- #endif
- #include <math.h>
-@@ -43,7 +43,7 @@ class VectorMath {
-   void SqrtAVX2(rtc::ArrayView<float> x);
-   void Sqrt(rtc::ArrayView<float> x) {
-     switch (optimization_) {
--#if defined(WEBRTC_ARCH_X86_FAMILY)
-+#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
-       case Aec3Optimization::kSse2: {
-         const int x_size = static_cast<int>(x.size());
-         const int vector_limit = x_size >> 2;
-@@ -123,7 +123,7 @@ class VectorMath {
-     RTC_DCHECK_EQ(z.size(), x.size());
-     RTC_DCHECK_EQ(z.size(), y.size());
-     switch (optimization_) {
--#if defined(WEBRTC_ARCH_X86_FAMILY)
-+#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
-       case Aec3Optimization::kSse2: {
-         const int x_size = static_cast<int>(x.size());
-         const int vector_limit = x_size >> 2;
-@@ -174,6 +174,7 @@ class VectorMath {
-     RTC_DCHECK_EQ(z.size(), x.size());
-     switch (optimization_) {
- #if defined(WEBRTC_ARCH_X86_FAMILY)
-+#if !defined(WAP_DISABLE_INLINE_SSE)
-       case Aec3Optimization::kSse2: {
-         const int x_size = static_cast<int>(x.size());
-         const int vector_limit = x_size >> 2;
-@@ -190,6 +191,7 @@ class VectorMath {
-           z[j] += x[j];
-         }
-       } break;
-+#endif
-       case Aec3Optimization::kAvx2:
-         AccumulateAVX2(x, z);
-         break;
-diff --git a/webrtc/modules/audio_processing/agc2/rnn_vad/vector_math.h b/webrtc/modules/audio_processing/agc2/rnn_vad/vector_math.h
-index 47f6811..f965086 100644
---- a/webrtc/modules/audio_processing/agc2/rnn_vad/vector_math.h
-+++ b/webrtc/modules/audio_processing/agc2/rnn_vad/vector_math.h
-@@ -17,7 +17,7 @@
- #if defined(WEBRTC_HAS_NEON)
- #include <arm_neon.h>
- #endif
--#if defined(WEBRTC_ARCH_X86_FAMILY)
-+#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
- #include <emmintrin.h>
- #endif
- 
-@@ -47,6 +47,7 @@ class VectorMath {
-     if (cpu_features_.avx2) {
-       return DotProductAvx2(x, y);
-     } else if (cpu_features_.sse2) {
-+#if !defined(WAP_DISABLE_INLINE_SSE)
-       __m128 accumulator = _mm_setzero_ps();
-       constexpr int kBlockSizeLog2 = 2;
-       constexpr int kBlockSize = 1 << kBlockSizeLog2;
-@@ -72,6 +73,7 @@ class VectorMath {
-         dot_product += x[i] * y[i];
-       }
-       return dot_product;
-+#endif
-     }
- #elif defined(WEBRTC_HAS_NEON) && defined(WEBRTC_ARCH_ARM64)
-     if (cpu_features_.neon) {
 diff --git a/webrtc/third_party/pffft/meson.build b/webrtc/third_party/pffft/meson.build
 index c1eb5c6..cf4c9c7 100644
 --- a/webrtc/third_party/pffft/meson.build
@@ -331,6 +78,258 @@ index c1eb5c6..cf4c9c7 100644
    pffft_cflags += [ '-DPFFFT_SIMD_DISABLE' ]
  endif
  
+diff --git a/webrtc/modules/audio_processing/aec3/adaptive_fir_filter.cc b/webrtc/modules/audio_processing/aec3/adaptive_fir_filter.cc
+index 142f786..9679594 100644
+--- a/webrtc/modules/audio_processing/aec3/adaptive_fir_filter.cc
++++ b/webrtc/modules/audio_processing/aec3/adaptive_fir_filter.cc
+@@ -28,7 +28,7 @@
+ #if defined(WEBRTC_HAS_NEON)
+ #include <arm_neon.h>
+ #endif
+-#if defined(WEBRTC_ARCH_X86_FAMILY)
++#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
+ #include <emmintrin.h>
+ #endif
+ 
+@@ -91,7 +91,7 @@ void ComputeFrequencyResponse_Neon(
+ }
+ #endif
+ 
+-#if defined(WEBRTC_ARCH_X86_FAMILY)
++#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
+ // Computes and stores the frequency response of the filter.
+ void ComputeFrequencyResponse_Sse2(
+     size_t num_partitions,
+@@ -215,7 +215,7 @@ void AdaptPartitions_Neon(const RenderBuffer& render_buffer,
+ }
+ #endif
+ 
+-#if defined(WEBRTC_ARCH_X86_FAMILY)
++#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
+ // Adapts the filter partitions. (SSE2 variant)
+ void AdaptPartitions_Sse2(const RenderBuffer& render_buffer,
+                           const FftData& G,
+@@ -380,7 +380,7 @@ void ApplyFilter_Neon(const RenderBuffer& render_buffer,
+ }
+ #endif
+ 
+-#if defined(WEBRTC_ARCH_X86_FAMILY)
++#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
+ // Produces the filter output (SSE2 variant).
+ void ApplyFilter_Sse2(const RenderBuffer& render_buffer,
+                       size_t num_partitions,
+@@ -558,9 +558,11 @@ void AdaptiveFirFilter::Filter(const RenderBuffer& render_buffer,
+   RTC_DCHECK(S);
+   switch (optimization_) {
+ #if defined(WEBRTC_ARCH_X86_FAMILY)
++#if !defined(WAP_DISABLE_INLINE_SSE)
+     case Aec3Optimization::kSse2:
+       ApplyFilter_Sse2(render_buffer, current_size_partitions_, H_, S);
+       break;
++#endif
+     case Aec3Optimization::kAvx2:
+       ApplyFilter_Avx2(render_buffer, current_size_partitions_, H_, S);
+       break;
+@@ -602,9 +604,11 @@ void AdaptiveFirFilter::ComputeFrequencyResponse(
+ 
+   switch (optimization_) {
+ #if defined(WEBRTC_ARCH_X86_FAMILY)
++#if !defined(WAP_DISABLE_INLINE_SSE)
+     case Aec3Optimization::kSse2:
+       ComputeFrequencyResponse_Sse2(current_size_partitions_, H_, H2);
+       break;
++#endif
+     case Aec3Optimization::kAvx2:
+       ComputeFrequencyResponse_Avx2(current_size_partitions_, H_, H2);
+       break;
+@@ -627,9 +631,11 @@ void AdaptiveFirFilter::AdaptAndUpdateSize(const RenderBuffer& render_buffer,
+   // Adapt the filter.
+   switch (optimization_) {
+ #if defined(WEBRTC_ARCH_X86_FAMILY)
++#if !defined(WAP_DISABLE_INLINE_SSE)
+     case Aec3Optimization::kSse2:
+       AdaptPartitions_Sse2(render_buffer, G, current_size_partitions_, &H_);
+       break;
++#endif
+     case Aec3Optimization::kAvx2:
+       AdaptPartitions_Avx2(render_buffer, G, current_size_partitions_, &H_);
+       break;
+diff --git a/webrtc/modules/audio_processing/aec3/adaptive_fir_filter_erl.cc b/webrtc/modules/audio_processing/aec3/adaptive_fir_filter_erl.cc
+index 19ffe86..3a56b6d 100644
+--- a/webrtc/modules/audio_processing/aec3/adaptive_fir_filter_erl.cc
++++ b/webrtc/modules/audio_processing/aec3/adaptive_fir_filter_erl.cc
+@@ -25,7 +25,7 @@
+ #if defined(WEBRTC_HAS_NEON)
+ #include <arm_neon.h>
+ #endif
+-#if defined(WEBRTC_ARCH_X86_FAMILY)
++#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
+ #include <emmintrin.h>
+ #endif
+ 
+@@ -61,7 +61,7 @@ void ErlComputer_NEON(
+ }
+ #endif
+ 
+-#if defined(WEBRTC_ARCH_X86_FAMILY)
++#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
+ // Computes and stores the echo return loss estimate of the filter, which is the
+ // sum of the partition frequency responses.
+ void ErlComputer_SSE2(
+@@ -87,9 +87,11 @@ void ComputeErl(const Aec3Optimization& optimization,
+   // Update the frequency response and echo return loss for the filter.
+   switch (optimization) {
+ #if defined(WEBRTC_ARCH_X86_FAMILY)
++#if !defined(WAP_DISABLE_INLINE_SSE)
+     case Aec3Optimization::kSse2:
+       ErlComputer_SSE2(H2, erl);
+       break;
++#endif
+     case Aec3Optimization::kAvx2:
+       ErlComputer_AVX2(H2, erl);
+       break;
+diff --git a/webrtc/modules/audio_processing/aec3/fft_data.h b/webrtc/modules/audio_processing/aec3/fft_data.h
+index 6bab8c9..0120b5f 100644
+--- a/webrtc/modules/audio_processing/aec3/fft_data.h
++++ b/webrtc/modules/audio_processing/aec3/fft_data.h
+@@ -21,7 +21,7 @@
+ 
+ // Defines WEBRTC_ARCH_X86_FAMILY, used below.
+ #include "rtc_base/system/arch.h"
+-#if defined(WEBRTC_ARCH_X86_FAMILY)
++#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
+ #include <emmintrin.h>
+ #endif
+ 
+@@ -51,6 +51,7 @@ struct FftData {
+     RTC_DCHECK_EQ(kFftLengthBy2Plus1, power_spectrum.size());
+     switch (optimization) {
+ #if defined(WEBRTC_ARCH_X86_FAMILY)
++#if !defined(WAP_DISABLE_INLINE_SSE)
+       case Aec3Optimization::kSse2: {
+         constexpr int kNumFourBinBands = kFftLengthBy2 / 4;
+         constexpr int kLimit = kNumFourBinBands * 4;
+@@ -65,6 +66,7 @@ struct FftData {
+         power_spectrum[kFftLengthBy2] = re[kFftLengthBy2] * re[kFftLengthBy2] +
+                                         im[kFftLengthBy2] * im[kFftLengthBy2];
+       } break;
++#endif
+       case Aec3Optimization::kAvx2:
+         SpectrumAVX2(power_spectrum);
+         break;
+diff --git a/webrtc/modules/audio_processing/aec3/matched_filter.cc b/webrtc/modules/audio_processing/aec3/matched_filter.cc
+index 69962e9..0ac11e7 100644
+--- a/webrtc/modules/audio_processing/aec3/matched_filter.cc
++++ b/webrtc/modules/audio_processing/aec3/matched_filter.cc
+@@ -18,7 +18,7 @@
+ #if defined(WEBRTC_HAS_NEON)
+ #include <arm_neon.h>
+ #endif
+-#if defined(WEBRTC_ARCH_X86_FAMILY)
++#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
+ #include <emmintrin.h>
+ #endif
+ #include <algorithm>
+@@ -283,7 +283,7 @@ void MatchedFilterCore_NEON(size_t x_start_index,
+ 
+ #endif
+ 
+-#if defined(WEBRTC_ARCH_X86_FAMILY)
++#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
+ 
+ void MatchedFilterCore_AccumulatedError_SSE2(size_t x_start_index,
+                                              float x2_sum_threshold,
+@@ -689,12 +689,14 @@ void MatchedFilter::Update(const DownsampledRenderBuffer& render_buffer,
+ 
+     switch (optimization_) {
+ #if defined(WEBRTC_ARCH_X86_FAMILY)
++#if !defined(WAP_DISABLE_INLINE_SSE)
+       case Aec3Optimization::kSse2:
+         MatchedFilterCore_SSE2(
+             x_start_index, x2_sum_threshold, smoothing, render_buffer.buffer, y,
+             filters_[n], &filters_updated, &error_sum, compute_pre_echo,
+             instantaneous_accumulated_error_, scratch_memory_);
+         break;
++#endif
+       case Aec3Optimization::kAvx2:
+         MatchedFilterCore_AVX2(
+             x_start_index, x2_sum_threshold, smoothing, render_buffer.buffer, y,
+diff --git a/webrtc/modules/audio_processing/aec3/vector_math.h b/webrtc/modules/audio_processing/aec3/vector_math.h
+index c733aa0..34e7c4a 100644
+--- a/webrtc/modules/audio_processing/aec3/vector_math.h
++++ b/webrtc/modules/audio_processing/aec3/vector_math.h
+@@ -24,7 +24,7 @@
+ #if defined(WEBRTC_HAS_NEON)
+ #include <arm_neon.h>
+ #endif
+-#if defined(WEBRTC_ARCH_X86_FAMILY)
++#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
+ #include <emmintrin.h>
+ #endif
+ 
+@@ -40,7 +40,7 @@ class VectorMath {
+   void SqrtAVX2(std::span<float> x);
+   void Sqrt(std::span<float> x) {
+     switch (optimization_) {
+-#if defined(WEBRTC_ARCH_X86_FAMILY)
++#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
+       case Aec3Optimization::kSse2: {
+         const int x_size = static_cast<int>(x.size());
+         const int vector_limit = x_size >> 2;
+@@ -120,7 +120,7 @@ class VectorMath {
+     RTC_DCHECK_EQ(z.size(), x.size());
+     RTC_DCHECK_EQ(z.size(), y.size());
+     switch (optimization_) {
+-#if defined(WEBRTC_ARCH_X86_FAMILY)
++#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
+       case Aec3Optimization::kSse2: {
+         const int x_size = static_cast<int>(x.size());
+         const int vector_limit = x_size >> 2;
+@@ -171,6 +171,7 @@ class VectorMath {
+     RTC_DCHECK_EQ(z.size(), x.size());
+     switch (optimization_) {
+ #if defined(WEBRTC_ARCH_X86_FAMILY)
++#if !defined(WAP_DISABLE_INLINE_SSE)
+       case Aec3Optimization::kSse2: {
+         const int x_size = static_cast<int>(x.size());
+         const int vector_limit = x_size >> 2;
+@@ -187,6 +188,7 @@ class VectorMath {
+           z[j] += x[j];
+         }
+       } break;
++#endif
+       case Aec3Optimization::kAvx2:
+         AccumulateAVX2(x, z);
+         break;
+diff --git a/webrtc/modules/audio_processing/agc2/rnn_vad/vector_math.h b/webrtc/modules/audio_processing/agc2/rnn_vad/vector_math.h
+index 0bfe5af..1b272b6 100644
+--- a/webrtc/modules/audio_processing/agc2/rnn_vad/vector_math.h
++++ b/webrtc/modules/audio_processing/agc2/rnn_vad/vector_math.h
+@@ -17,7 +17,7 @@
+ #if defined(WEBRTC_HAS_NEON)
+ #include <arm_neon.h>
+ #endif
+-#if defined(WEBRTC_ARCH_X86_FAMILY)
++#if defined(WEBRTC_ARCH_X86_FAMILY) && !defined(WAP_DISABLE_INLINE_SSE)
+ #include <emmintrin.h>
+ #endif
+ 
+@@ -46,6 +46,7 @@ class VectorMath {
+     if (cpu_features_.avx2) {
+       return DotProductAvx2(x, y);
+     } else if (cpu_features_.sse2) {
++#if !defined(WAP_DISABLE_INLINE_SSE)
+       __m128 accumulator = _mm_setzero_ps();
+       constexpr int kBlockSizeLog2 = 2;
+       constexpr int kBlockSize = 1 << kBlockSizeLog2;
+@@ -71,6 +72,7 @@ class VectorMath {
+         dot_product += x[i] * y[i];
+       }
+       return dot_product;
++#endif
+     }
+ #elif defined(WEBRTC_HAS_NEON) && defined(WEBRTC_ARCH_ARM64)
+     if (cpu_features_.neon) {
 -- 
 2.47.1
 
