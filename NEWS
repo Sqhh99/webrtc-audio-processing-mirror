@@ -1,3 +1,32 @@
+Release 3.0
+-----------
+
+Bump to code from WebRTC M153 version (Chromium 153.0.8010.55, WebRTC
+9ea5afcad008b940468c2a15aec339592cf5a935).
+
+Changes include:
+
+  * Breaking API changes upstream:
+    - AudioProcessingBuilder is replaced by BuiltinAudioProcessingBuilder,
+      which takes an Environment. Create an APM instance with
+      `BuiltinAudioProcessingBuilder(config).Build(CreateEnvironment())`
+      (see examples/run-offline.cpp)
+    - The mobile echo canceller (AECM) is removed upstream, and with it
+      `Config::EchoCanceller::mobile_mode`
+    - The `rtc::` namespace is gone, everything lives in `webrtc::`
+  * New capture mixer and post filter in the APM, and various AEC3/AGC2
+    improvements
+  * C++20 is now required
+  * abseil-cpp dependency bumped to 20250814
+  * The Environment API (field trials, clock, task queue factory, event log)
+    is now built and installed. A portable std::thread-based task queue is
+    used on all platforms
+  * Patches to upstream refreshed; the gcc-15 and abseil-cpp 202508 fixes and
+    the AECM MIPS fix are dropped as they are no longer needed, and fixes for
+    asm/unistd_64.h on non-x86_64 Linux and std::isfinite with libstdc++ are
+    added
+
+
 Release 2.1
 -----------
 
