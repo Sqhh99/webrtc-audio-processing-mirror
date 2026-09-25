@@ -9,3 +9,4 @@ build/
 depcomp
 install/
 subprojects/*/
+subprojects/.wraplock
