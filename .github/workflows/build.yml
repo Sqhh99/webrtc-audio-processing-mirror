@@ -107,7 +107,10 @@ jobs:
       matrix:
         include:
           - { package: windows_x86_64, runner: windows-latest, arch: x64, msvc-arch: amd64 }
-          - { package: windows_arm64, runner: windows-11-arm, arch: arm64, msvc-arch: arm64, options: '-D neon=enabled' }
+          # Upstream only builds its NEON code with clang-cl on Windows; with
+          # MSVC the AEC3 NEON filter adaptation is not bit exact with the
+          # generic code, so use the latter.
+          - { package: windows_arm64, runner: windows-11-arm, arch: arm64, msvc-arch: arm64, options: '-D neon=disabled' }
     steps:
       - name: Checkout
         uses: actions/checkout@v4
