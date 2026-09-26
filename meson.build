@@ -69,8 +69,12 @@ if absl_dep[0].type_name() == 'internal'
   ]
   install_headers(headers, preserve_path: true)
   pc_requires = []
+  # The abseil headers are installed directly in includedir, so users of the
+  # pkg-config file need that in their include path as well.
+  pc_subdirs = [include_subdir, '.']
 else
   pc_requires = [absl_dep[0]]
+  pc_subdirs = [include_subdir]
 endif
 
 if ['darwin', 'ios'].contains(host_system)
@@ -204,7 +208,7 @@ pkgconfig = import('pkgconfig')
 pkgconfig.generate(
   libwebrtc_audio_processing,
   description: 'WebRTC Audio Processing library',
-  subdirs: include_subdir,
+  subdirs: pc_subdirs,
   requires: pc_requires,
   extra_cflags: [
     '-DWEBRTC_LIBRARY_IMPL',
