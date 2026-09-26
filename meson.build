@@ -220,3 +220,7 @@ audio_processing_dep = declare_dependency(
 meson.override_dependency(apm_project_name, audio_processing_dep)
 
 subdir('examples')
+
+if get_option('tests').allowed()
+  subdir('tests')
+endif

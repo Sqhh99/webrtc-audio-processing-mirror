@@ -10,3 +10,4 @@ depcomp
 install/
 subprojects/*/
 subprojects/.wraplock
+test-resources/
