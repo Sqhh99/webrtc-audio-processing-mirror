@@ -16,11 +16,25 @@ need manual verfification (or testing downstream).
 
 ## Tag the release
 
-Tag the release with:
+Releases are tagged after the upstream WebRTC version they are based on, as
+`m<milestone>.<branch>.<branch position>.<build>`:
+
+  * `milestone`: the Chromium/WebRTC milestone (e.g. `153`)
+  * `branch`: the WebRTC `branch-heads/<branch>` number, i.e. the third
+    component of the Chromium version (e.g. `8010` for `153.0.8010.55`)
+  * `branch position`: the number of commits on that branch head the code is
+    synced to (`0` for the branch point)
+  * `build`: our own release number for that upstream revision, starting at
+    `0` and incremented for releases that only change things on our side
+
+For example, for the first release based on the M153 branch point:
 
 ```sh
-git tag -s -m 'WebRTC AudioProcessing v<X.y>' v<X.y>
+git tag -s -m 'WebRTC AudioProcessing m153.8010.0.0' m153.8010.0.0
 ```
+
+Pushing the tag triggers the release workflow, which builds binaries for all
+platforms and publishes a GitHub release.
 
 ## Make a tarball
 
