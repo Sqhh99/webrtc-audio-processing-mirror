@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 26 Sep 2026 05:45:51 +0000
+Subject: [PATCH] tests: Fix build with GCC before 13
+
+GCC 11 and 12 reject a member function named after a type used earlier in
+the class ("changes meaning"), and only GCC 13 lets that be turned into a
+warning. Spell out the type in the class instead.
+---
+diff --git a/webrtc/modules/audio_processing/agc2/input_volume_stats_reporter_unittest.cc b/webrtc/modules/audio_processing/agc2/input_volume_stats_reporter_unittest.cc
+--- a/webrtc/modules/audio_processing/agc2/input_volume_stats_reporter_unittest.cc
++++ b/webrtc/modules/audio_processing/agc2/input_volume_stats_reporter_unittest.cc
+@@ -28,12 +28,14 @@
+ constexpr absl::string_view kLabelPrefix = "WebRTC.Audio.Apm.";
+ 
+ class InputVolumeStatsReporterTest
+-    : public ::testing::TestWithParam<InputVolumeType> {
++    : public ::testing::TestWithParam<InputVolumeStatsReporter::InputVolumeType> {
+  public:
+   InputVolumeStatsReporterTest() { metrics::Reset(); }
+ 
+  protected:
+-  InputVolumeType InputVolumeType() const { return GetParam(); }
++  InputVolumeStatsReporter::InputVolumeType InputVolumeType() const {
++    return GetParam();
++  }
+   std::string VolumeLabel() const {
+     return (StringBuilder(kLabelPrefix) << VolumeTypeLabel() << "OnChange")
+         .str();
+-- 
+2.49.0
+
