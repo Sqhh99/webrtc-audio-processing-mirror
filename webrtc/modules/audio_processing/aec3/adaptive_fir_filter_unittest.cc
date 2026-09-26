@@ -70,6 +70,9 @@ class AdaptiveFirFilterOneTwoFourEightRenderChannels
 INSTANTIATE_TEST_SUITE_P(MultiChannel,
                          AdaptiveFirFilterOneTwoFourEightRenderChannels,
                          ::testing::Values(1, 2, 4, 8));
+// All tests in this suite are for SIMD optimizations, so there may be none.
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(
+    AdaptiveFirFilterOneTwoFourEightRenderChannels);
 
 #if defined(WEBRTC_HAS_NEON)
 // Verifies that the optimized methods for filter adaptation are similar to
