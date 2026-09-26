@@ -181,6 +181,11 @@ common_cflags = [
   '-D_WINSOCKAPI_',
   '-DNDEBUG'
   ] + platform_cflags + os_cflags + arch_cflags
+# Match upstream (Chromium's build/config/compiler/BUILD.gn): don't let the
+# compiler fuse multiplies and adds into FMA instructions on its own. GCC does
+# this by default in the files built with -mfma, which makes the AVX2 code
+# paths diverge from the generic ones (and fails upstream's unit tests).
+common_cflags += cc.get_supported_arguments('-ffp-contract=off')
 common_cxxflags = common_cflags
 common_deps = os_deps + [absl_dep]
 webrtc_inc = include_directories('.')
