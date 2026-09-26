@@ -1,0 +1,44 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 26 Sep 2026 04:37:04 +0000
+Subject: [PATCH] tests: Don't use rtc_base/thread for sleeping
+
+The APM locking test only uses webrtc::Thread for Thread::SleepMs(), which
+would pull the whole of rtc_base/thread.cc (and its socket dependencies)
+into the test build. Use std::this_thread::sleep_for() instead.
+---
+diff --git a/webrtc/modules/audio_processing/audio_processing_impl_locking_unittest.cc b/webrtc/modules/audio_processing/audio_processing_impl_locking_unittest.cc
+--- a/webrtc/modules/audio_processing/audio_processing_impl_locking_unittest.cc
++++ b/webrtc/modules/audio_processing/audio_processing_impl_locking_unittest.cc
+@@ -9,9 +9,11 @@
+  */
+ 
+ #include <algorithm>
++#include <chrono>
+ #include <cstddef>
+ #include <cstdint>
+ #include <span>
++#include <thread>
+ #include <vector>
+ 
+ #include "api/audio/audio_processing.h"
+@@ -22,7 +24,6 @@
+ #include "rtc_base/platform_thread.h"
+ #include "rtc_base/random.h"
+ #include "rtc_base/synchronization/mutex.h"
+-#include "rtc_base/thread.h"
+ #include "rtc_base/thread_annotations.h"
+ #include "test/create_test_environment.h"
+ #include "test/gtest.h"
+@@ -439,7 +440,7 @@
+ // Sleeps a random time between 0 and max_sleep milliseconds.
+ void SleepRandomMs(int max_sleep, RandomGenerator* rand_gen) {
+   int sleeptime = rand_gen->RandInt(0, max_sleep);
+-  Thread::SleepMs(sleeptime);
++  std::this_thread::sleep_for(std::chrono::milliseconds(sleeptime));
+ }
+ 
+ // Populates a float audio frame with random data.
+-- 
+2.49.0
+
