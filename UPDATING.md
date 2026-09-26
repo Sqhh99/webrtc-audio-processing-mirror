@@ -41,6 +41,14 @@ project source code.
    * Re-apply the patches in ```patches/``` and refresh them against the new
      code.
 
+   * Unit tests (```*_unittest.cc```) and the test helpers they need are
+     copied from upstream at their upstream paths as well, and listed in
+     ```tests/meson.build```. Tests that read upstream test resources go in
+     ```resource_unittest_sources```, and the ```.sha1``` files for the
+     resources they use go in ```webrtc/resources/``` (copied from upstream's
+     ```resources/```). Run ```meson test``` with ```-Dtests=enabled``` after
+     updating.
+
 4. Once everything has been copied and updated, everything needs to be built.
    Missing dependencies (files that were not copied, or new modules that are
    being depended on) will first turn up here.
