@@ -115,16 +115,19 @@ The code needs C++20. To build it against an installed copy of the library:
 c++ -std=c++20 app.cc $(pkg-config --cflags --libs webrtc-audio-processing-3)
 ```
 
-With a prebuilt package extracted to `$PKG`, also add the directory with the
-bundled abseil headers:
+With a prebuilt package extracted to `$PKG`, point pkg-config at it:
 
 ```sh
+export PKG_CONFIG_PATH=$PKG/lib/pkgconfig
 c++ -std=c++20 app.cc \
-  -I$PKG/include -I$PKG/include/webrtc-audio-processing-3 -DWEBRTC_POSIX \
-  -L$PKG/lib -lwebrtc-audio-processing-3
+  $(pkg-config --define-prefix --cflags --libs webrtc-audio-processing-3)
 ```
 
-On Windows, define `WEBRTC_WIN` instead of `WEBRTC_POSIX`.
+Packages from releases before `m153.8010.0.2` also need `-I$PKG/include`, for
+the bundled abseil headers. Without pkg-config (for example with MSVC), add
+`$PKG/include` and `$PKG/include/webrtc-audio-processing-3` to the include path,
+define `WEBRTC_POSIX` (`WEBRTC_WIN` on Windows), and link with
+`webrtc-audio-processing-3`.
 [`examples/run-offline.cpp`](examples/run-offline.cpp) is a complete example
 that runs echo cancellation over raw audio files.
 
