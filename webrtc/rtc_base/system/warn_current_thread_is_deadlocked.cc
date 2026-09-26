@@ -11,13 +11,13 @@
 #include "rtc_base/system/warn_current_thread_is_deadlocked.h"
 
 #include "rtc_base/logging.h"
-#include "sdk/android/native_api/stacktrace/stacktrace.h"
 
 namespace webrtc {
 
 void WarnThatTheCurrentThreadIsProbablyDeadlocked() {
-  RTC_LOG(LS_WARNING) << "Probable deadlock:";
-  RTC_LOG(LS_WARNING) << StackTraceToString(GetStackTrace());
+  // The stack trace comes from sdk/android, which is not part of this
+  // library.
+  RTC_LOG(LS_WARNING) << "Probable deadlock";
 }
 
 }  // namespace webrtc
