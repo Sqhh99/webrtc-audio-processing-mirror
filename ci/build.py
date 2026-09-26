@@ -150,6 +150,23 @@ def find_ndk():
     sys.exit('Android NDK not found, set ANDROID_NDK_HOME')
 
 
+def check_android_library(readelf, path):
+    """Checks that libc++ is linked in and segments are 16 KB aligned."""
+    dynamic = subprocess.run([readelf, '-d', path], check=True,
+                             capture_output=True, text=True).stdout
+    needed = [l.split('[')[-1].rstrip(']') for l in dynamic.splitlines()
+              if '(NEEDED)' in l]
+    print(os.path.basename(path), 'needs', ', '.join(needed))
+    if any('c++' in n for n in needed):
+        sys.exit('%s depends on a shared libc++' % path)
+    segments = subprocess.run([readelf, '-lW', path], check=True,
+                              capture_output=True, text=True).stdout
+    for line in segments.splitlines():
+        fields = line.split()
+        if fields and fields[0] == 'LOAD' and int(fields[-1], 16) < 0x4000:
+            sys.exit('%s has LOAD segments aligned below 16 KB' % path)
+
+
 def build_android(args):
     ndk = find_ndk()
     host_tag = {'Linux': 'linux-x86_64', 'Darwin': 'darwin-x86_64'}[
@@ -204,6 +221,8 @@ endian = 'little'
         os.makedirs(libdir)
         for so in glob.glob(os.path.join(install, 'lib', '*.so*')):
             shutil.copy(so, libdir)
+            check_android_library(os.path.join(bindir, 'llvm-readelf'),
+                                  os.path.join(libdir, os.path.basename(so)))
 
     add_licenses(package, None)
     archive(package, PACKAGE_PREFIX + '.android', 'tar.gz')
@@ -264,6 +283,12 @@ endian = 'little'
             build, 'subprojects', 'abseil-cpp-*', 'libabsl_*.a')))
         run(['libtool', '-static', '-no_warning_for_no_symbols', '-o', lib,
              os.path.join(install, 'lib', 'lib%s.a' % LIB_NAME)] + absl_libs)
+        # Make sure abseil really ended up in the library.
+        symbols = subprocess.run(['nm', '-gU', lib], check=True,
+                                 capture_output=True, text=True).stdout
+        if 'absl' not in symbols:
+            sys.exit('abseil is missing from ' + lib)
+        run(['lipo', '-info', lib])
         slices[name] = (lib, os.path.join(install, 'include'))
 
     # One xcframework library per platform: merge the simulator architectures.
@@ -288,6 +313,9 @@ endian = 'little'
     xcframework = os.path.join(package, 'WebRTCAudioProcessing.xcframework')
     run(['xcodebuild', '-create-xcframework'] + xcf_args +
         ['-output', xcframework])
+    for entry in sorted(os.listdir(xcframework)):
+        print(' ', entry, os.listdir(os.path.join(xcframework, entry))
+              if os.path.isdir(os.path.join(xcframework, entry)) else '')
     add_licenses(package, None)
     archive(package, 'WebRTCAudioProcessing.xcframework', 'zip')
 
