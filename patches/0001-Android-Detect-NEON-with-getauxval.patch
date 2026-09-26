@@ -1,0 +1,37 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 26 Sep 2026 05:45:51 +0000
+Subject: [PATCH] Android: Detect NEON with getauxval()
+
+Use the same getauxval() based detection as on Linux (WEBRTC_LINUX is also
+defined on Android) instead of the NDK's deprecated cpufeatures library,
+which is not part of this build.
+---
+diff --git a/webrtc/rtc_base/cpu_info.cc b/webrtc/rtc_base/cpu_info.cc
+--- a/webrtc/rtc_base/cpu_info.cc
++++ b/webrtc/rtc_base/cpu_info.cc
+@@ -25,7 +25,6 @@
+ #elif defined(WEBRTC_MAC)
+ #include <sys/sysctl.h>
+ #elif defined(WEBRTC_ANDROID)
+-#include <cpu-features.h>
+ #include <unistd.h>
+ #elif defined(WEBRTC_FUCHSIA)
+ #include <zircon/syscalls.h>
+@@ -174,9 +173,10 @@
+   }
+ #elif defined(WEBRTC_ARCH_ARM_FAMILY)
+   if (instruction_set_architecture == ISA::kNeon) {
+-#if defined(WEBRTC_ANDROID)
+-    return 0 != (android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_NEON);
+-#elif defined(WEBRTC_LINUX)
++    // WEBRTC_LINUX is also defined on Android, where getauxval() is available
++    // as well. This avoids depending on the NDK's deprecated cpufeatures
++    // library.
++#if defined(WEBRTC_LINUX)
+     uint64_t hwcap = 0;
+     hwcap = getauxval(AT_HWCAP);
+ #if defined(__aarch64__)
+-- 
+2.49.0
+

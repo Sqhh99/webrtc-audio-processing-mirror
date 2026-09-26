@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 26 Sep 2026 05:45:51 +0000
+Subject: [PATCH] denormal_disabler: Don't use inline assembly with MSVC
+
+The ARM implementation uses GCC style inline assembly, which MSVC does not
+support (upstream only builds for Windows on ARM with clang-cl). Leave the
+disabler as a no-op there, like the x86 code already is for compilers other
+than clang.
+---
+diff --git a/webrtc/rtc_base/denormal_disabler.cc b/webrtc/rtc_base/denormal_disabler.cc
+--- a/webrtc/rtc_base/denormal_disabler.cc
++++ b/webrtc/rtc_base/denormal_disabler.cc
+@@ -20,8 +20,11 @@
+ #define WEBRTC_DENORMAL_DISABLER_X86_SUPPORTED
+ #endif
+ 
++// The ARM implementation uses GCC style inline assembly, which MSVC does not
++// support.
+ #if defined(WEBRTC_DENORMAL_DISABLER_X86_SUPPORTED) || \
+-    defined(WEBRTC_ARCH_ARM_FAMILY)
++    (defined(WEBRTC_ARCH_ARM_FAMILY) &&                \
++     (defined(__GNUC__) || defined(__clang__)))
+ #define WEBRTC_DENORMAL_DISABLER_SUPPORTED
+ #endif
+ 
+-- 
+2.49.0
+

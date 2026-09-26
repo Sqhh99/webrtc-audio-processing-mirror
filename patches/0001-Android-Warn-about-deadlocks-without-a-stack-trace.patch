@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 26 Sep 2026 05:30:04 +0000
+Subject: [PATCH] Android: Warn about deadlocks without a stack trace
+
+The stack trace helpers live in sdk/android (JNI code), which is not part
+of this library, so only log the warning.
+---
+diff --git a/webrtc/rtc_base/system/warn_current_thread_is_deadlocked.cc b/webrtc/rtc_base/system/warn_current_thread_is_deadlocked.cc
+--- a/webrtc/rtc_base/system/warn_current_thread_is_deadlocked.cc
++++ b/webrtc/rtc_base/system/warn_current_thread_is_deadlocked.cc
+@@ -11,13 +11,13 @@
+ #include "rtc_base/system/warn_current_thread_is_deadlocked.h"
+ 
+ #include "rtc_base/logging.h"
+-#include "sdk/android/native_api/stacktrace/stacktrace.h"
+ 
+ namespace webrtc {
+ 
+ void WarnThatTheCurrentThreadIsProbablyDeadlocked() {
+-  RTC_LOG(LS_WARNING) << "Probable deadlock:";
+-  RTC_LOG(LS_WARNING) << StackTraceToString(GetStackTrace());
++  // The stack trace comes from sdk/android, which is not part of this
++  // library.
++  RTC_LOG(LS_WARNING) << "Probable deadlock";
+ }
+ 
+ }  // namespace webrtc
+-- 
+2.49.0
+

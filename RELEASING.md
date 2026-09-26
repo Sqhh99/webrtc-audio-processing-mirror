@@ -34,7 +34,22 @@ git tag -s -m 'WebRTC AudioProcessing m153.8010.0.0' m153.8010.0.0
 ```
 
 Pushing the tag triggers the release workflow, which builds binaries for all
-platforms and publishes a GitHub release.
+platforms and publishes a GitHub release. It can also be started by hand from
+the Actions tab (the "Release" workflow takes the tag name as input).
+
+## Release packages
+
+The release workflow runs the build workflow (`.github/workflows/build.yml`),
+whose jobs only set up the toolchains and call `ci/build.py` for each target:
+
+  * `ci/build.py native --package NAME [--tests]` builds on the current
+    machine (the Linux packages are built inside the respective distribution
+    containers), runs the tests, and packages the installed tree
+  * `ci/build.py android` cross-builds for all Android ABIs with the NDK
+  * `ci/build.py ios` cross-builds an iOS xcframework
+
+The packages end up in `dist/`, and the same script can be used to reproduce a
+release build locally.
 
 ## Make a tarball
 

@@ -25,7 +25,6 @@
 #elif defined(WEBRTC_MAC)
 #include <sys/sysctl.h>
 #elif defined(WEBRTC_ANDROID)
-#include <cpu-features.h>
 #include <unistd.h>
 #elif defined(WEBRTC_FUCHSIA)
 #include <zircon/syscalls.h>
@@ -174,9 +173,10 @@ bool Supports(ISA instruction_set_architecture) {
   }
 #elif defined(WEBRTC_ARCH_ARM_FAMILY)
   if (instruction_set_architecture == ISA::kNeon) {
-#if defined(WEBRTC_ANDROID)
-    return 0 != (android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_NEON);
-#elif defined(WEBRTC_LINUX)
+    // WEBRTC_LINUX is also defined on Android, where getauxval() is available
+    // as well. This avoids depending on the NDK's deprecated cpufeatures
+    // library.
+#if defined(WEBRTC_LINUX)
     uint64_t hwcap = 0;
     hwcap = getauxval(AT_HWCAP);
 #if defined(__aarch64__)

@@ -11,3 +11,5 @@ install/
 subprojects/*/
 subprojects/.wraplock
 test-resources/
+ci-work/
+dist/
