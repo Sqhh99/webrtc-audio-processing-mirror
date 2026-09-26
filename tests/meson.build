@@ -15,7 +15,18 @@ endif
 
 test_inc = include_directories('include')
 
-test_cflags = common_cxxflags + apm_flags + [
+# The tests are not part of the shared library, so don't build them with
+# symbol exports: on Windows, RTC_EXPORT would otherwise be dllexport, which
+# makes MSVC emit every inline member (and the vtable) of exported classes in
+# each object, dragging in classes like rtc::Thread that the tests don't use.
+test_cflags = []
+foreach flag : common_cxxflags
+  if flag != '-DWEBRTC_ENABLE_SYMBOL_EXPORT'
+    test_cflags += flag
+  endif
+endforeach
+
+test_cflags += apm_flags + [
   # Upstream builds its tests with this defined, see webrtc.gni
   '-DWEBRTC_UNIT_TEST',
 ]
