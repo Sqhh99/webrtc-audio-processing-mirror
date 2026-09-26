@@ -28,12 +28,14 @@ constexpr int kFramesIn60Seconds = 6000;
 constexpr absl::string_view kLabelPrefix = "WebRTC.Audio.Apm.";
 
 class InputVolumeStatsReporterTest
-    : public ::testing::TestWithParam<InputVolumeType> {
+    : public ::testing::TestWithParam<InputVolumeStatsReporter::InputVolumeType> {
  public:
   InputVolumeStatsReporterTest() { metrics::Reset(); }
 
  protected:
-  InputVolumeType InputVolumeType() const { return GetParam(); }
+  InputVolumeStatsReporter::InputVolumeType InputVolumeType() const {
+    return GetParam();
+  }
   std::string VolumeLabel() const {
     return (StringBuilder(kLabelPrefix) << VolumeTypeLabel() << "OnChange")
         .str();

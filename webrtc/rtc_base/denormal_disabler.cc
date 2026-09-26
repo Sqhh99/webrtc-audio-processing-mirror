@@ -20,8 +20,11 @@ namespace {
 #define WEBRTC_DENORMAL_DISABLER_X86_SUPPORTED
 #endif
 
+// The ARM implementation uses GCC style inline assembly, which MSVC does not
+// support.
 #if defined(WEBRTC_DENORMAL_DISABLER_X86_SUPPORTED) || \
-    defined(WEBRTC_ARCH_ARM_FAMILY)
+    (defined(WEBRTC_ARCH_ARM_FAMILY) &&                \
+     (defined(__GNUC__) || defined(__clang__)))
 #define WEBRTC_DENORMAL_DISABLER_SUPPORTED
 #endif
 
