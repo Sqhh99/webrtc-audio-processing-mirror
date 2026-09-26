@@ -1,0 +1,84 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 26 Sep 2026 04:37:04 +0000
+Subject: [PATCH] tests: Skip inline SSE tests when it is disabled
+
+Follow-up to "Allow disabling inline SSE": the SSE2 implementations these
+tests compare against are not built with WAP_DISABLE_INLINE_SSE.
+---
+diff --git a/webrtc/modules/audio_processing/aec3/adaptive_fir_filter_unittest.cc b/webrtc/modules/audio_processing/aec3/adaptive_fir_filter_unittest.cc
+--- a/webrtc/modules/audio_processing/aec3/adaptive_fir_filter_unittest.cc
++++ b/webrtc/modules/audio_processing/aec3/adaptive_fir_filter_unittest.cc
+@@ -182,6 +182,7 @@
+ #if defined(WEBRTC_ARCH_X86_FAMILY)
+ // Verifies that the optimized methods for filter adaptation are bitexact to
+ // their reference counterparts.
++#if !defined(WAP_DISABLE_INLINE_SSE)
+ TEST_P(AdaptiveFirFilterOneTwoFourEightRenderChannels,
+        FilterAdaptationSse2Optimizations) {
+   const size_t num_render_channels = GetParam();
+@@ -251,6 +252,7 @@
+     }
+   }
+ }
++#endif
+ 
+ // Verifies that the optimized methods for filter adaptation are bitexact to
+ // their reference counterparts.
+@@ -326,6 +328,7 @@
+ 
+ // Verifies that the optimized method for frequency response computation is
+ // bitexact to the reference counterpart.
++#if !defined(WAP_DISABLE_INLINE_SSE)
+ TEST_P(AdaptiveFirFilterOneTwoFourEightRenderChannels,
+        ComputeFrequencyResponseSse2Optimization) {
+   const size_t num_render_channels = GetParam();
+@@ -358,6 +361,7 @@
+     }
+   }
+ }
++#endif
+ 
+ // Verifies that the optimized method for frequency response computation is
+ // bitexact to the reference counterpart.
+diff --git a/webrtc/modules/audio_processing/aec3/adaptive_fir_filter_erl_unittest.cc b/webrtc/modules/audio_processing/aec3/adaptive_fir_filter_erl_unittest.cc
+--- a/webrtc/modules/audio_processing/aec3/adaptive_fir_filter_erl_unittest.cc
++++ b/webrtc/modules/audio_processing/aec3/adaptive_fir_filter_erl_unittest.cc
+@@ -54,6 +54,7 @@
+ #if defined(WEBRTC_ARCH_X86_FAMILY)
+ // Verifies that the optimized method for echo return loss computation is
+ // bitexact to the reference counterpart.
++#if !defined(WAP_DISABLE_INLINE_SSE)
+ TEST(AdaptiveFirFilter, UpdateErlSse2Optimization) {
+   bool use_sse2 = cpu_info::Supports(cpu_info::ISA::kSSE2);
+   if (use_sse2) {
+@@ -76,6 +77,7 @@
+     }
+   }
+ }
++#endif
+ 
+ // Verifies that the optimized method for echo return loss computation is
+ // bitexact to the reference counterpart.
+diff --git a/webrtc/modules/audio_processing/aec3/matched_filter_unittest.cc b/webrtc/modules/audio_processing/aec3/matched_filter_unittest.cc
+--- a/webrtc/modules/audio_processing/aec3/matched_filter_unittest.cc
++++ b/webrtc/modules/audio_processing/aec3/matched_filter_unittest.cc
+@@ -123,6 +123,7 @@
+ #if defined(WEBRTC_ARCH_X86_FAMILY)
+ // Verifies that the optimized methods for SSE2 are bitexact to their reference
+ // counterparts.
++#if !defined(WAP_DISABLE_INLINE_SSE)
+ TEST_P(MatchedFilterTest, TestSse2Optimizations) {
+   const bool kComputeAccumulatederror = GetParam();
+   bool use_sse2 = cpu_info::Supports(cpu_info::ISA::kSSE2);
+@@ -178,6 +179,7 @@
+     }
+   }
+ }
++#endif
+ 
+ TEST_P(MatchedFilterTest, TestAvx2Optimizations) {
+   bool use_avx2 = cpu_info::Supports(cpu_info::ISA::kAVX2);
+-- 
+2.49.0
+

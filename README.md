@@ -33,6 +33,28 @@ ninja -C build install
 # directory
 ```
 
+# Running the tests
+
+The upstream WebRTC unit tests for the audio processing module (and the
+`common_audio` code it uses) can be built and run with Meson. They need
+[GoogleTest](https://github.com/google/googletest), which is taken from the
+system or downloaded as a subproject.
+
+```sh
+meson setup build -Dtests=enabled
+ninja -C build
+
+# Some tests need audio files and reference data from upstream, which are
+# downloaded from Google Cloud Storage (about 19 MB). Without them, those
+# tests are reported as skipped.
+python3 tests/download_resources.py build/test-resources
+
+meson test -C build --print-errorlogs
+```
+
+The resources can also be downloaded elsewhere and passed with
+`-Dtest-resources-dir=/path/to/resources`.
+
 # Feedback
 
 Patches, suggestions welcome. You can file an issue on our Gitlab

@@ -1,0 +1,92 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 26 Sep 2026 04:37:04 +0000
+Subject: [PATCH] tests: Use the C float math functions
+
+std::sinf(), std::powf() and std::log10f() are only provided by libstdc++
+since GCC 14. Use the identical C functions from <cmath> instead.
+---
+diff --git a/webrtc/modules/audio_processing/post_filter_unittest.cc b/webrtc/modules/audio_processing/post_filter_unittest.cc
+--- a/webrtc/modules/audio_processing/post_filter_unittest.cc
++++ b/webrtc/modules/audio_processing/post_filter_unittest.cc
+@@ -56,7 +56,7 @@
+ }
+ 
+ float PowerDecibelToLinear(float db) {
+-  return std::powf(10.0, db / 10.0);
++  return powf(10.0, db / 10.0);
+ }
+ }  // namespace
+ 
+@@ -100,7 +100,7 @@
+   std::generate(audio_input.begin(), audio_input.end(),
+                 [&phase, phase_increment]() {
+                   phase += phase_increment;
+-                  return std::sinf(phase);
++                  return sinf(phase);
+                 });
+   ProcessOneFrameAsAudioBuffer(audio_input, stream_config, filter.get());
+ 
+@@ -108,7 +108,7 @@
+     std::generate(audio_input.begin(), audio_input.end(),
+                   [&phase, phase_increment]() {
+                     phase += phase_increment;
+-                    return std::sinf(phase);
++                    return sinf(phase);
+                   });
+     const float input_power = ComputePower(audio_input);
+ 
+@@ -142,7 +142,7 @@
+   std::generate(audio_input.begin(), audio_input.end(),
+                 [&phase, phase_increment]() {
+                   phase += phase_increment;
+-                  return std::sinf(phase);
++                  return sinf(phase);
+                 });
+   ProcessOneFrameAsAudioBuffer(audio_input, stream_config, filter.get());
+ 
+@@ -150,7 +150,7 @@
+     std::generate(audio_input.begin(), audio_input.end(),
+                   [&phase, phase_increment]() {
+                     phase += phase_increment;
+-                    return std::sinf(phase);
++                    return sinf(phase);
+                   });
+     const float input_power = ComputePower(audio_input);
+ 
+@@ -158,7 +158,7 @@
+         ProcessOneFrameAsAudioBuffer(audio_input, stream_config, filter.get());
+ 
+     float output_power = ComputePower(audio_output);
+-    EXPECT_THAT(10 * std::log10f(output_power / input_power),
++    EXPECT_THAT(10 * log10f(output_power / input_power),
+                 FloatNear(0.0, 0.5f));
+   }
+ }
+diff --git a/webrtc/modules/audio_processing/agc2/adaptive_digital_gain_controller_unittest.cc b/webrtc/modules/audio_processing/agc2/adaptive_digital_gain_controller_unittest.cc
+--- a/webrtc/modules/audio_processing/agc2/adaptive_digital_gain_controller_unittest.cc
++++ b/webrtc/modules/audio_processing/agc2/adaptive_digital_gain_controller_unittest.cc
+@@ -107,7 +107,7 @@
+     helper.gain_applier->Process(info, fake_audio.view());
+     applied_gain = fake_audio.float_frame_view().channel(0)[0];
+   }
+-  const float applied_gain_db = 20.0f * std::log10f(applied_gain);
++  const float applied_gain_db = 20.0f * log10f(applied_gain);
+   EXPECT_NEAR(applied_gain_db, kDefaultConfig.max_gain_db, 0.1f);
+ }
+ 
+diff --git a/webrtc/modules/audio_processing/agc2/noise_level_estimator_unittest.cc b/webrtc/modules/audio_processing/agc2/noise_level_estimator_unittest.cc
+--- a/webrtc/modules/audio_processing/agc2/noise_level_estimator_unittest.cc
++++ b/webrtc/modules/audio_processing/agc2/noise_level_estimator_unittest.cc
+@@ -85,7 +85,7 @@
+   const float noise_level_dbfs =
+       RunEstimator(gen, *estimator, sample_rate_hz());
+   const float expected_noise_floor_dbfs =
+-      20.0f * std::log10f(kNoPulseAmplitude / test::kMaxS16);
++      20.0f * log10f(kNoPulseAmplitude / test::kMaxS16);
+   EXPECT_NEAR(noise_level_dbfs, expected_noise_floor_dbfs, 0.5f);
+ }
+ 
+-- 
+2.49.0
+

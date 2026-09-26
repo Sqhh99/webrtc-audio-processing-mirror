@@ -7,3 +7,9 @@ option('neon', type: 'feature',
 option('inline-sse', type: 'boolean',
        value: true,
        description: 'Enable inline SSE/SSE2 optimisations (i.e. assume CPU supports SSE/SSE2)')
+option('tests', type: 'feature',
+       value: 'disabled',
+       description: 'Build the upstream WebRTC unit tests (requires gtest/gmock)')
+option('test-resources-dir', type: 'string',
+       value: '',
+       description: 'Directory with the upstream test resources fetched by tests/download_resources.py (default: <builddir>/test-resources)')

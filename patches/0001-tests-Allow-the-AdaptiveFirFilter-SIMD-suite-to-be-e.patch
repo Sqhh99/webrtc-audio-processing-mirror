@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 26 Sep 2026 04:55:02 +0000
+Subject: [PATCH] tests: Allow the AdaptiveFirFilter SIMD suite to be empty
+
+All tests in AdaptiveFirFilterOneTwoFourEightRenderChannels are for x86 or
+NEON optimizations, so on other targets (or ARM without NEON) the suite is
+instantiated without any tests, which gtest reports as a failure.
+---
+diff --git a/webrtc/modules/audio_processing/aec3/adaptive_fir_filter_unittest.cc b/webrtc/modules/audio_processing/aec3/adaptive_fir_filter_unittest.cc
+--- a/webrtc/modules/audio_processing/aec3/adaptive_fir_filter_unittest.cc
++++ b/webrtc/modules/audio_processing/aec3/adaptive_fir_filter_unittest.cc
+@@ -70,6 +70,9 @@
+ INSTANTIATE_TEST_SUITE_P(MultiChannel,
+                          AdaptiveFirFilterOneTwoFourEightRenderChannels,
+                          ::testing::Values(1, 2, 4, 8));
++// All tests in this suite are for SIMD optimizations, so there may be none.
++GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(
++    AdaptiveFirFilterOneTwoFourEightRenderChannels);
+ 
+ #if defined(WEBRTC_HAS_NEON)
+ // Verifies that the optimized methods for filter adaptation are similar to
+-- 
+2.49.0
+
