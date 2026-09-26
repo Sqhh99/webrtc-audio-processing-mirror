@@ -85,7 +85,7 @@ TEST_P(NoiseEstimatorParametrization, NoiseFloorEstimatorWithPulseTone) {
   const float noise_level_dbfs =
       RunEstimator(gen, *estimator, sample_rate_hz());
   const float expected_noise_floor_dbfs =
-      20.0f * std::log10f(kNoPulseAmplitude / test::kMaxS16);
+      20.0f * log10f(kNoPulseAmplitude / test::kMaxS16);
   EXPECT_NEAR(noise_level_dbfs, expected_noise_floor_dbfs, 0.5f);
 }
 

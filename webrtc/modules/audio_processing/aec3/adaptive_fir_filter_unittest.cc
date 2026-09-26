@@ -182,6 +182,7 @@ TEST_P(AdaptiveFirFilterOneTwoFourEightRenderChannels,
 #if defined(WEBRTC_ARCH_X86_FAMILY)
 // Verifies that the optimized methods for filter adaptation are bitexact to
 // their reference counterparts.
+#if !defined(WAP_DISABLE_INLINE_SSE)
 TEST_P(AdaptiveFirFilterOneTwoFourEightRenderChannels,
        FilterAdaptationSse2Optimizations) {
   const size_t num_render_channels = GetParam();
@@ -251,6 +252,7 @@ TEST_P(AdaptiveFirFilterOneTwoFourEightRenderChannels,
     }
   }
 }
+#endif
 
 // Verifies that the optimized methods for filter adaptation are bitexact to
 // their reference counterparts.
@@ -326,6 +328,7 @@ TEST_P(AdaptiveFirFilterOneTwoFourEightRenderChannels,
 
 // Verifies that the optimized method for frequency response computation is
 // bitexact to the reference counterpart.
+#if !defined(WAP_DISABLE_INLINE_SSE)
 TEST_P(AdaptiveFirFilterOneTwoFourEightRenderChannels,
        ComputeFrequencyResponseSse2Optimization) {
   const size_t num_render_channels = GetParam();
@@ -358,6 +361,7 @@ TEST_P(AdaptiveFirFilterOneTwoFourEightRenderChannels,
     }
   }
 }
+#endif
 
 // Verifies that the optimized method for frequency response computation is
 // bitexact to the reference counterpart.

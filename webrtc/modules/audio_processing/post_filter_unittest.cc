@@ -56,7 +56,7 @@ float ComputePower(std::span<const float> audio) {
 }
 
 float PowerDecibelToLinear(float db) {
-  return std::powf(10.0, db / 10.0);
+  return powf(10.0, db / 10.0);
 }
 }  // namespace
 
@@ -100,7 +100,7 @@ TEST(PostFilterTest, Tone19p8kHzSignalAttenuation48k) {
   std::generate(audio_input.begin(), audio_input.end(),
                 [&phase, phase_increment]() {
                   phase += phase_increment;
-                  return std::sinf(phase);
+                  return sinf(phase);
                 });
   ProcessOneFrameAsAudioBuffer(audio_input, stream_config, filter.get());
 
@@ -108,7 +108,7 @@ TEST(PostFilterTest, Tone19p8kHzSignalAttenuation48k) {
     std::generate(audio_input.begin(), audio_input.end(),
                   [&phase, phase_increment]() {
                     phase += phase_increment;
-                    return std::sinf(phase);
+                    return sinf(phase);
                   });
     const float input_power = ComputePower(audio_input);
 
@@ -142,7 +142,7 @@ TEST(PostFilterTest, Tone17kHzSignalNoAttenuation48k) {
   std::generate(audio_input.begin(), audio_input.end(),
                 [&phase, phase_increment]() {
                   phase += phase_increment;
-                  return std::sinf(phase);
+                  return sinf(phase);
                 });
   ProcessOneFrameAsAudioBuffer(audio_input, stream_config, filter.get());
 
@@ -150,7 +150,7 @@ TEST(PostFilterTest, Tone17kHzSignalNoAttenuation48k) {
     std::generate(audio_input.begin(), audio_input.end(),
                   [&phase, phase_increment]() {
                     phase += phase_increment;
-                    return std::sinf(phase);
+                    return sinf(phase);
                   });
     const float input_power = ComputePower(audio_input);
 
@@ -158,7 +158,7 @@ TEST(PostFilterTest, Tone17kHzSignalNoAttenuation48k) {
         ProcessOneFrameAsAudioBuffer(audio_input, stream_config, filter.get());
 
     float output_power = ComputePower(audio_output);
-    EXPECT_THAT(10 * std::log10f(output_power / input_power),
+    EXPECT_THAT(10 * log10f(output_power / input_power),
                 FloatNear(0.0, 0.5f));
   }
 }

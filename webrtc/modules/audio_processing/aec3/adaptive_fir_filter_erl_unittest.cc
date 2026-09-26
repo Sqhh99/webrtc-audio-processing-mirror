@@ -54,6 +54,7 @@ TEST(AdaptiveFirFilter, UpdateErlNeonOptimization) {
 #if defined(WEBRTC_ARCH_X86_FAMILY)
 // Verifies that the optimized method for echo return loss computation is
 // bitexact to the reference counterpart.
+#if !defined(WAP_DISABLE_INLINE_SSE)
 TEST(AdaptiveFirFilter, UpdateErlSse2Optimization) {
   bool use_sse2 = cpu_info::Supports(cpu_info::ISA::kSSE2);
   if (use_sse2) {
@@ -76,6 +77,7 @@ TEST(AdaptiveFirFilter, UpdateErlSse2Optimization) {
     }
   }
 }
+#endif
 
 // Verifies that the optimized method for echo return loss computation is
 // bitexact to the reference counterpart.

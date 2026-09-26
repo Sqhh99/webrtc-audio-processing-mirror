@@ -123,6 +123,7 @@ TEST_P(MatchedFilterTest, TestNeonOptimizations) {
 #if defined(WEBRTC_ARCH_X86_FAMILY)
 // Verifies that the optimized methods for SSE2 are bitexact to their reference
 // counterparts.
+#if !defined(WAP_DISABLE_INLINE_SSE)
 TEST_P(MatchedFilterTest, TestSse2Optimizations) {
   const bool kComputeAccumulatederror = GetParam();
   bool use_sse2 = cpu_info::Supports(cpu_info::ISA::kSSE2);
@@ -178,6 +179,7 @@ TEST_P(MatchedFilterTest, TestSse2Optimizations) {
     }
   }
 }
+#endif
 
 TEST_P(MatchedFilterTest, TestAvx2Optimizations) {
   bool use_avx2 = cpu_info::Supports(cpu_info::ISA::kAVX2);

@@ -107,7 +107,7 @@ TEST(GainController2AdaptiveDigitalGainControllerTest, MaxGainApplied) {
     helper.gain_applier->Process(info, fake_audio.view());
     applied_gain = fake_audio.float_frame_view().channel(0)[0];
   }
-  const float applied_gain_db = 20.0f * std::log10f(applied_gain);
+  const float applied_gain_db = 20.0f * log10f(applied_gain);
   EXPECT_NEAR(applied_gain_db, kDefaultConfig.max_gain_db, 0.1f);
 }
 

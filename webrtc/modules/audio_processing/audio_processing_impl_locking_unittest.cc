@@ -9,9 +9,11 @@
  */
 
 #include <algorithm>
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <span>
+#include <thread>
 #include <vector>
 
 #include "api/audio/audio_processing.h"
@@ -22,7 +24,6 @@
 #include "rtc_base/platform_thread.h"
 #include "rtc_base/random.h"
 #include "rtc_base/synchronization/mutex.h"
-#include "rtc_base/thread.h"
 #include "rtc_base/thread_annotations.h"
 #include "test/create_test_environment.h"
 #include "test/gtest.h"
@@ -439,7 +440,7 @@ class AudioProcessingImplLockTest
 // Sleeps a random time between 0 and max_sleep milliseconds.
 void SleepRandomMs(int max_sleep, RandomGenerator* rand_gen) {
   int sleeptime = rand_gen->RandInt(0, max_sleep);
-  Thread::SleepMs(sleeptime);
+  std::this_thread::sleep_for(std::chrono::milliseconds(sleeptime));
 }
 
 // Populates a float audio frame with random data.
