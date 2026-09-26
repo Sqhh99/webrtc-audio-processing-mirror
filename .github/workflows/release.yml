@@ -3,11 +3,12 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      # m<milestone>.<branch>.<branch position>.<build>, e.g. m153.8010.0.0
+      - 'm[0-9]*.*'
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Release tag (e.g., v2.1.0)'
+        description: 'Release tag (e.g., m153.8010.0.0)'
         required: true
         type: string
 
@@ -155,18 +156,25 @@ jobs:
         id: tag
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "tag=${{ inputs.tag }}" >> $GITHUB_OUTPUT
+            TAG="${{ inputs.tag }}"
           else
-            echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+            TAG="${GITHUB_REF#refs/tags/}"
           fi
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          # m<milestone>.<branch>.<branch position>.<build>
+          IFS=. read -r MILESTONE BRANCH _ <<< "$TAG"
+          echo "milestone=${MILESTONE#m}" >> $GITHUB_OUTPUT
+          echo "branch=${BRANCH}" >> $GITHUB_OUTPUT
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
-          name: Release ${{ steps.tag.outputs.tag }}
+          name: ${{ steps.tag.outputs.tag }}
           body: |
             ## WebRTC Audio Processing ${{ steps.tag.outputs.tag }}
+
+            Based on the WebRTC M${{ steps.tag.outputs.milestone }} release (branch-heads/${{ steps.tag.outputs.branch }}). See [NEWS](https://github.com/${{ github.repository }}/blob/${{ steps.tag.outputs.tag }}/NEWS) for details.
 
             Pre-built binaries for Windows, Linux, and macOS.
 
@@ -175,9 +183,6 @@ jobs:
             - **Windows x64**: `webrtc-audio-processing-windows-x64.zip`
             - **macOS x64**: `webrtc-audio-processing-macos-x64.tar.gz`
             - **macOS arm64**: `webrtc-audio-processing-macos-arm64.tar.gz`
-
-            ### Note
-            This is a mirror of the original [GitLab repository](https://gitlab.freedesktop.org/pulseaudio/webrtc-audio-processing).
           files: |
             artifacts/webrtc-audio-processing-linux-x64/webrtc-audio-processing-linux-x64.tar.gz
             artifacts/webrtc-audio-processing-windows-x64/webrtc-audio-processing-windows-x64.zip
